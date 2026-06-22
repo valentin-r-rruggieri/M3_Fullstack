@@ -1,0 +1,96 @@
+/*
+ * STARTER M3L8
+ * Estilos completos: no son parte de la practica de testing.
+ *
+ * Por que ya vienen listos:
+ * - La lecture 8 se enfoca en unit tests, no en CSS.
+ * - La UI debe quedarse estable para que podamos comparar Starter vs Resolution.
+ * - Los alumnos solo tienen que mirar la app funcionando y despues trabajar en JS/tests.
+ */
+
+/* === RESET === */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* === BASE === */
+body {
+  font-family: system-ui, sans-serif;
+  background: #0f172a;
+  color: #e2e8f0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* === CONTAINER === */
+.container {
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.subtitle {
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+/* === BUTTON === */
+.btn {
+  background: #6366f1;
+  color: white;
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn:hover:not(:disabled) {
+  background: #4f46e5;
+  transform: translateY(-1px);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* === OUTPUT === */
+.joke-box {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  line-height: 1.7;
+  font-size: 1.05rem;
+}
+
+.error-box {
+  background: #1a0a0a;
+  border: 1px solid #7f1d1d;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  color: #fca5a5;
+  font-size: 0.9rem;
+}
+
+/* === UTILITY === */
+.hidden {
+  display: none !important;
+}

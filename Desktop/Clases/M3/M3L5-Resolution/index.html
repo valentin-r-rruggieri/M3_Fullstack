@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat Demo — AI Prompting Exercise</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="app-header">
+        <h1 class="app-header__title">💬 Chat Demo</h1>
+        <span id="connection-badge" class="badge badge--loading">Cargando...</span>
+      </header>
+
+      <main class="messages" id="messages" aria-live="polite">
+        <div id="state-loading" class="state-panel state--loading">
+          <div class="spinner"></div>
+          <p>Cargando mensajes...</p>
+        </div>
+
+        <div id="state-error" class="state-panel state--error hidden" role="alert">
+          <p class="error-icon">⚠️</p>
+          <p id="error-message" class="error-text"></p>
+          <button id="retry-btn" class="btn btn--retry">Reintentar</button>
+        </div>
+
+        <div id="state-success" class="messages-list hidden"></div>
+      </main>
+
+      <form class="composer" id="composer-form" autocomplete="off">
+        <input
+          class="composer__input"
+          id="composer-input"
+          type="text"
+          placeholder="Escribí un mensaje..."
+          aria-label="Mensaje"
+        />
+        <button class="composer__btn" type="submit" aria-label="Enviar">↑</button>
+      </form>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

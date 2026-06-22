@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat AI Engine — M3L6</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="header-left">
+        <div class="avatar">🧪</div>
+        <div class="header-info">
+          <h1 class="header-name">Dr. Science</h1>
+          <span id="connection-status" class="status-dot status--online"></span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Selector de personaje: permite ver por qué el system prompt cambia el comportamiento. -->
+        <select id="character-select" class="character-select">
+          <option value="science">🧪 Dr. Science</option>
+          <option value="chef">👨‍🍳 Chef Claude</option>
+          <option value="detective">🕵️ Detective</option>
+        </select>
+        <button id="reset-btn" class="btn-icon" title="Nueva conversación">↺</button>
+      </div>
+    </header>
+
+    <main class="messages" id="messages" aria-live="polite" aria-label="Mensajes del chat">
+      <!-- Los mensajes se renderizan acá por JS. -->
+      <div class="messages-empty" id="messages-empty">
+        <p>👋 ¡Hola! Soy el Dr. Science.<br>Preguntame lo que quieras sobre ciencia.</p>
+      </div>
+    </main>
+
+    <!-- Panel de estado: loading / retrying / error. -->
+    <div id="status-panel" class="status-panel hidden" aria-live="assertive">
+      <span id="status-text" class="status-text"></span>
+    </div>
+
+    <form class="composer" id="composer-form" autocomplete="off" novalidate>
+      <input
+        class="composer__input"
+        id="composer-input"
+        type="text"
+        placeholder="Escribí tu mensaje..."
+        aria-label="Mensaje"
+        maxlength="500"
+      >
+      <button class="composer__btn" id="send-btn" type="submit" aria-label="Enviar">
+        ↑
+      </button>
+    </form>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

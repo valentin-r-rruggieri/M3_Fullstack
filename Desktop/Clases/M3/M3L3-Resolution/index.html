@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador con Fetch API</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="container">
+      <header class="app-header">
+        <h1>🔍 Buscador de Pokémon</h1>
+        <p class="app-subtitle">Ingresá el nombre de un Pokémon</p>
+      </header>
+
+      <form id="search-form" class="search-form">
+        <input
+          type="text"
+          id="search-input"
+          class="search-input"
+          placeholder="ej: pikachu, charizard, bulbasaur"
+          autocomplete="off"
+          required
+        />
+        <button type="submit" class="btn btn--primary" id="search-btn">
+          Buscar
+        </button>
+      </form>
+
+      <!-- Badge de estado actual (debug visual) -->
+      <div id="state-badge" class="state-badge">estado: idle</div>
+
+      <!-- Panel de estados (solo uno visible a la vez) -->
+
+      <!-- IDLE -->
+      <div id="state-idle" class="state-panel state-panel--idle">
+        <p>Escribí un nombre y presioná Buscar 👆</p>
+      </div>
+
+      <!-- LOADING -->
+      <div id="state-loading" class="state-panel state-panel--loading hidden">
+        <div class="spinner"></div>
+        <p>Buscando...</p>
+      </div>
+
+      <!-- SUCCESS -->
+      <div id="state-success" class="state-panel state-panel--success hidden">
+        <div id="pokemon-card" class="pokemon-card"></div>
+      </div>
+
+      <!-- ERROR -->
+      <div
+        id="state-error"
+        class="state-panel state-panel--error hidden"
+        role="alert"
+        aria-live="assertive"
+      >
+        <p class="error-icon">⚠️</p>
+        <p id="error-message" class="error-message"></p>
+        <button id="retry-btn" class="btn btn--secondary">
+          🔄 Reintentar
+        </button>
+      </div>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

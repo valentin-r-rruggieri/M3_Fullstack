@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dad Joke Generator — Tests</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <!--
+    STARTER M3L8
+    Este HTML ya viene completo desde el arranque.
+
+    NO TOCAR EN CLASE:
+    - Los ids son el contrato entre HTML y app.js.
+    - Si cambiamos #joke-btn, #joke-output, #joke-text, #error-output
+      o #error-text, el JavaScript deja de encontrar los elementos.
+
+    FOCO DE LA CLASE:
+    - No vamos a practicar DOM.
+    - Vamos a practicar unit testing sobre funciones puras y fetch mockeado.
+  -->
+  <div class="container">
+    <h1>😂 Dad Joke Generator</h1>
+    <p class="subtitle">M3L7 + tests unitarios con Vitest</p>
+
+    <!-- app.js escucha el click de este boton y coordina el flujo completo. -->
+    <button id="joke-btn" class="btn">
+      Generá un chiste
+    </button>
+
+    <!-- Caja de exito: app.js la muestra cuando getJoke() responde bien. -->
+    <div id="joke-output" class="joke-box hidden">
+      <p id="joke-text"></p>
+    </div>
+
+    <!-- Caja de error: app.js la muestra cuando getJoke() lanza un error. -->
+    <div id="error-output" class="error-box hidden">
+      <p id="error-text"></p>
+    </div>
+  </div>
+
+  <!-- type="module" permite usar import/export en app.js. -->
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

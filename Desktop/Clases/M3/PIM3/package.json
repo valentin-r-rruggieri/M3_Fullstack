@@ -1,0 +1,17 @@
+{
+  "name": "chat-with-sherlock",
+  "version": "1.0.0",
+  "description": "SPA para chatear con Sherlock Holmes usando Gemini AI",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.0"
+  }
+}

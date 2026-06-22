@@ -1,0 +1,335 @@
+/* === RESET === */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body, h1, h2, p, form, select {
+  margin: 0;
+  padding: 0;
+}
+
+/* === BASE === */
+body {
+  font-family: system-ui, sans-serif;
+  background: #0d1117;
+  color: #e6edf3;
+}
+
+/* === LAYOUT APP === */
+.app {
+  height: 100vh;
+  height: 100dvh; /* Considera el teclado virtual en mobile. */
+  display: flex;
+  flex-direction: column;
+  max-width: 42rem;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+/* === HEADER === */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: #161b22;
+  border-bottom: 1px solid #21262d;
+  flex-shrink: 0;
+  gap: 0.75rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  background: #21262d;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.header-info {
+  min-width: 0;
+}
+
+.header-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 0.25rem;
+}
+
+.status--online {
+  background: #3fb950;
+}
+
+.status--busy {
+  background: #f0883e;
+}
+
+.status--error {
+  background: #f85149;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.character-select {
+  background: #21262d;
+  color: #e6edf3;
+  border: 1px solid #30363d;
+  border-radius: 0.375rem;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  max-width: 10.5rem;
+}
+
+.btn-icon {
+  background: none;
+  border: 1px solid #30363d;
+  color: #8b949e;
+  border-radius: 0.375rem;
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+  font-size: 1rem;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.btn-icon:hover {
+  background: #21262d;
+  color: #e6edf3;
+}
+
+/* === PANEL DE MENSAJES === */
+.messages {
+  flex: 1 1 0; /* Base 0: permite que el panel se achique sin romper el layout. */
+  min-height: 0; /* Habilita scroll interno en contenedores flex. */
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  scroll-behavior: smooth;
+}
+
+.messages-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #484f58;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* === BURBUJAS DE MENSAJE === */
+.message {
+  display: flex;
+  flex-direction: column;
+  max-width: 82%;
+}
+
+.message--user {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.message--assistant {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+.message__author {
+  font-size: 0.7rem;
+  color: #8b949e;
+  margin-bottom: 0.2rem;
+  font-weight: 600;
+}
+
+.message__bubble {
+  padding: 0.65rem 1rem;
+  border-radius: 1rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.message--user .message__bubble {
+  background: #1d4ed8;
+  color: white;
+  border-bottom-right-radius: 0.25rem;
+}
+
+.message--assistant .message__bubble {
+  background: #21262d;
+  color: #e6edf3;
+  border-bottom-left-radius: 0.25rem;
+}
+
+.message__meta {
+  font-size: 0.65rem;
+  color: #484f58;
+  margin-top: 0.2rem;
+}
+
+/* === STATUS PANEL (loading / retrying / error) === */
+.status-panel {
+  padding: 0.5rem 1rem;
+  background: #161b22;
+  border-top: 1px solid #21262d;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-text {
+  font-size: 0.82rem;
+  color: #8b949e;
+}
+
+.status-panel.status--retrying .status-text {
+  color: #f0883e;
+}
+
+.status-panel.status--error-msg .status-text {
+  color: #f85149;
+}
+
+/* === TYPING INDICATOR === */
+.typing-indicator {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.65rem 1rem;
+  background: #21262d;
+  border-radius: 1rem;
+  border-bottom-left-radius: 0.25rem;
+  width: fit-content;
+}
+
+.typing-indicator span {
+  width: 0.45rem;
+  height: 0.45rem;
+  background: #8b949e;
+  border-radius: 50%;
+  animation: bounce 1.2s ease-in-out infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+  }
+
+  40% {
+    transform: translateY(-0.35rem);
+  }
+}
+
+/* === COMPOSER === */
+.composer {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #161b22;
+  border-top: 1px solid #21262d;
+  flex-shrink: 0;
+}
+
+.composer__input {
+  flex: 1;
+  min-width: 0; /* Evita overflow horizontal en pantallas chicas. */
+  padding: 0.6rem 0.9rem;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 1.5rem;
+  color: #e6edf3;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.composer__input:focus {
+  border-color: #388bfd;
+}
+
+.composer__input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.composer__btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: none;
+  background: #1d4ed8;
+  color: white;
+  font-size: 1.1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  transition: background 0.15s;
+}
+
+.composer__btn:hover:not(:disabled) {
+  background: #1e40af;
+}
+
+.composer__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 420px) {
+  .app-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .header-right {
+    width: 100%;
+  }
+
+  .character-select {
+    flex: 1;
+    max-width: none;
+  }
+}
+
+/* === UTILITY === */
+.hidden {
+  display: none !important;
+}

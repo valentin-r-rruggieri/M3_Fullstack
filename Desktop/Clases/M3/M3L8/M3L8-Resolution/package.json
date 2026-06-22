@@ -1,0 +1,17 @@
+{
+  "name": "dad-joke-generator-tests-resolution",
+  "version": "1.0.0",
+  "description": "M3L8 Resolution: Dad Joke Generator de M3L7 + tests con Vitest",
+  "type": "module",
+  "scripts": {
+    "local": "npx --yes vercel dev",
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.0"
+  }
+}
