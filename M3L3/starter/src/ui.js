@@ -1,11 +1,12 @@
-// ============================================================
-// ui.js — Todo lo que toca el DOM
-// ============================================================
-// Patrón: una sola función render(state) decide qué mostrar.
-// Nunca manipulamos el DOM desde main.js ni desde api.js.
-// ============================================================
+/*
+ * ui.js — Todo lo que toca el DOM
+ *
+ * UNA sola función render(state) decide qué mostrar.
+ * Patrón: ocultar todo -> mostrar solo el panel que corresponde.
+ * Esto garantiza que nunca haya dos paneles visibles a la vez.
+ */
 
-// Referencias DOM — tomar UNA sola vez al cargar el módulo
+// Referencias DOM (se toman una sola vez)
 const $idle = document.querySelector("#state-idle");
 const $loading = document.querySelector("#state-loading");
 const $success = document.querySelector("#state-success");
@@ -15,67 +16,75 @@ const $errMsg = document.querySelector("#error-message");
 const $badge = document.querySelector("#state-badge");
 const $btn = document.querySelector("#search-btn");
 
-// TODO 1: Implementar render(state)
-//
-// Patrón exacto a implementar:
-//
-//   1. Ocultar TODOS los paneles (agregar clase "hidden" a los 4)
-//      Tip: [$idle, $loading, $success, $error].forEach(...)
-//
-//   2. Actualizar el badge de debug:
-//      $badge.textContent = `estado: ${state.status}`
-//
-//   3. Según state.status, quitar "hidden" del panel correspondiente:
-//
-//      "idle"    -> mostrar $idle, habilitar botón ($btn.disabled = false)
-//
-//      "loading" -> mostrar $loading, deshabilitar botón ($btn.disabled = true)
-//                   (evita doble submit mientras carga)
-//
-//      "success" -> mostrar $success
-//                   $card.innerHTML = buildPokemonCard(state.data)
-//                   habilitar botón
-//
-//      "error"   -> mostrar $error
-//                   $errMsg.textContent = state.error
-//                   habilitar botón
-//
-// export function render(state) { ... }
+export function render(state) {
+  // 1. Ocultar todos los paneles
+  [$idle, $loading, $success, $error].forEach((el) => {
+    el.classList.add("hidden");
+  });
 
-// TODO 2: Implementar buildPokemonCard(pokemon)
-//
-// Construye el HTML de la tarjeta con estos campos del objeto Pokémon:
-//   - pokemon.name
-//   - pokemon.id  (formateado como #001, #025, etc)
-//   - pokemon.sprites.other["official-artwork"].front_default  (imagen grande)
-//   - pokemon.sprites.front_default  (fallback si no hay artwork)
-//   - pokemon.types  (badges de tipo)
-//   - pokemon.height / 10  (viene en decímetros -> convertir a metros)
-//   - pokemon.weight / 10  (viene en hectogramos -> convertir a kg)
-//   - pokemon.base_experience
-//
-// Estructura HTML a usar (con las clases del CSS):
-//
-//   <div class="pokemon-card__media">
-//     <img src="..." alt="Imagen de pikachu" />
-//   </div>
-//   <div class="pokemon-card__header">
-//     <h2 class="pokemon-card__name">pikachu</h2>
-//     <p class="pokemon-card__id">#025</p>
-//   </div>
-//   <div class="pokemon-card__types">
-//     <span class="pokemon-card__type">electric</span>
-//   </div>
-//   <div class="pokemon-card__stats">
-//     <div class="pokemon-card__stat">
-//       <span>Altura</span><strong>0.4 m</strong>
-//     </div>
-//     <div class="pokemon-card__stat">
-//       <span>Peso</span><strong>6.0 kg</strong>
-//     </div>
-//     <div class="pokemon-card__stat">
-//       <span>EXP</span><strong>112</strong>
-//     </div>
-//   </div>
-//
-// function buildPokemonCard(pokemon) { ... }
+  // 2. Actualizar badge de debug (estado visible en pantalla)
+  $badge.textContent = `estado: ${state.status}`;
+
+  // 3. Mostrar el panel correcto según estado
+  if (state.status === "idle") {
+    $idle.classList.remove("hidden");
+    $btn.disabled = false;
+  } else if (state.status === "loading") {
+    $loading.classList.remove("hidden");
+    $btn.disabled = true; // evitar doble submit mientras carga
+  } else if (state.status === "success") {
+    $success.classList.remove("hidden");
+    $card.innerHTML = buildPokemonCard(state.data);
+    $btn.disabled = false;
+  } else if (state.status === "error") {
+    $error.classList.remove("hidden");
+    $errMsg.textContent = state.error;
+    $btn.disabled = false;
+  }
+}
+
+/*
+ * buildPokemonCard(pokemon)
+ * -------------------------
+ * Construye el HTML de la tarjeta con los datos del pokémon.
+ * Campos usados: name, id, sprites, types, height, weight, base_experience
+ */
+function buildPokemonCard(pokemon) {
+  const img =
+    pokemon.sprites.other["official-artwork"].front_default ||
+    pokemon.sprites.front_default ||
+    "";
+  const name = pokemon.name;
+  const id = `#${String(pokemon.id).padStart(3, "0")}`;
+  const height = (pokemon.height / 10).toFixed(1) + " m";
+  const weight = (pokemon.weight / 10).toFixed(1) + " kg";
+  const experience = pokemon.base_experience || "N/D";
+  const types = pokemon.types
+    .map((item) => `<span class="pokemon-card__type">${item.type.name}</span>`)
+    .join("");
+
+  return `
+    <div class="pokemon-card__media">
+      <img src="${img}" alt="Imagen de ${name}" />
+    </div>
+    <div class="pokemon-card__header">
+      <h2 class="pokemon-card__name">${name}</h2>
+      <p class="pokemon-card__id">${id}</p>
+    </div>
+    <div class="pokemon-card__types">${types}</div>
+    <div class="pokemon-card__stats">
+      <div class="pokemon-card__stat">
+        <span>Altura</span>
+        <strong>${height}</strong>
+      </div>
+      <div class="pokemon-card__stat">
+        <span>Peso</span>
+        <strong>${weight}</strong>
+      </div>
+      <div class="pokemon-card__stat">
+        <span>EXP</span>
+        <strong>${experience}</strong>
+      </div>
+    </div>
+  `;
+}
