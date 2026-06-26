@@ -1,36 +1,34 @@
-﻿/*
- * api.js — Capa de red
- *
- * FIX JS: validación de response.ok
- * ──────────────────────────────────────────────────────────
- * PROBLEMA ORIGINAL (bug del starter):
- *   fetch() NO rechaza la promesa cuando el servidor responde 404 o 500.
- *   Solo rechaza ante fallos de red real (sin conexión, CORS, DNS).
- *   Si no validamos response.ok, un 404 pasa por el try como si fuera éxito,
- *   la UI se queda en "loading" y nunca muestra el estado de error.
- *
- * FIX:
- *   Después del primer await (respuesta de red), verificar response.ok.
- *   Si es false, lanzar error manualmente. El catch lo captura y la UI
- *   muestra el estado de error.
- *
- * Sin este fix, el estado "error" de la UI nunca se activa por errores HTTP.
- */
+﻿const API_BASE = "https://thesimpsonsapi.com/api";
 
-const API_URL = "https://jsonplaceholder.typicode.com/posts?_limit=8";
+export function buildUrl(params) {
+  const url = new URL(API_BASE + "/characters");
+  Object.entries(params).forEach(function ([key, value]) {
+    if (value !== undefined && value !== null) {
+      url.searchParams.set(key, String(value));
+    }
+  });
+  return url.toString();
+}
 
-export async function fetchMessages() {
-  const response = await fetch(API_URL);
-
-  /* FIX: validar ANTES de parsear el body
-   * Sin esta línea, un 404 o 500 pasa al .json() como si fuera éxito */
+export async function fetchJson(url) {
+  const response = await fetch(url);
   if (!response.ok) {
-    const err = new Error(
-      "HTTP " + response.status + ": " + response.statusText
-    );
-    err.status = response.status;
-    throw err;
+    throw new Error("HTTP " + response.status + ": " + response.statusText);
   }
-
   return response.json();
+}
+
+export async function fetchCharacters(name) {
+  const url = buildUrl({ name: name.trim() || undefined, page: 1 });
+  const data = await fetchJson(url);
+  const list = data.results;
+  if (!Array.isArray(list)) {
+    throw new Error("NO_RESULTS");
+  }
+  return list;
+}
+
+export async function getFirstSixCharacters(name) {
+  const raw = await fetchCharacters(name);
+  return raw.slice(0, 6);
 }

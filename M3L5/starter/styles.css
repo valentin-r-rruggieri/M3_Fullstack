@@ -1,185 +1,169 @@
-﻿/* === RESET === */
-*, *::before, *::after { box-sizing: border-box; }
-body, h1, p, form { margin: 0; padding: 0; }
-
-/* === LAYOUT PRINCIPAL ===
- *
- * ⚠️ BUG CSS #1: height: 100vh no considera el teclado virtual en mobile
- * ────────────────────────────────────────────────────────────────────────
- * SÍNTOMA: En DevTools → Responsive Mode → 320px → simular teclado:
- *   El composer (input) desaparece debajo del viewport visible.
- *   El teclado "empuja" el layout pero el .app no se adapta.
- *
- * TODO: cambiar height para que se adapte dinámicamente al viewport real
- *       (pista: existe una unidad de viewport que se llama "dvh")
- *
- * ⚠️ BUG CSS #2 (en este mismo bloque): body puede generar scroll lateral
- *   TODO: agregar propiedad que evite overflow en el .app
- */
-.app {
-  height: 100vh;           /* ⚠️ BUG #1: no considera teclado virtual */
-  display: flex;
-  flex-direction: column;
-  background: #0d1117;
-  color: #e6edf3;
-  font-family: system-ui, sans-serif;
-  /* falta: overflow: hidden */
+﻿* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* === HEADER === */
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1rem;
-  background: #161b22;
-  border-bottom: 1px solid #21262d;
-  flex-shrink: 0;
-}
-.app-header__title { font-size: 1rem; font-weight: 700; }
-
-/* === BADGE === */
-.badge { font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 1rem; font-weight: 600; }
-.badge--loading { background: #21262d; color: #8b949e; }
-.badge--success { background: #1a3a1a; color: #3fb950; }
-.badge--error   { background: #3a1a1a; color: #f85149; }
-
-/* === PANEL DE MENSAJES ===
- *
- * ⚠️ BUG CSS #3: flex child sin min-height: 0
- * ─────────────────────────────────────────────
- * SÍNTOMA: En Responsive Mode 320px:
- *   El panel de mensajes no scrollea internamente.
- *   El body genera scroll vertical/lateral en su lugar.
- *   En algunos casos el panel empuja fuera del contenedor.
- *
- * CAUSA: un flex child tiene min-height: auto por defecto.
- *   Esto le impide encogerse más allá de su contenido mínimo.
- *   Sin min-height: 0, el panel puede desbordar el contenedor.
- *
- * TODO: agregar min-height: 0 y corregir el valor de flex
- */
-.messages {
-  flex: 1;                 /* ⚠️ BUG #3: debería ser flex: 1 1 0 */
-                           /*    y falta min-height: 0 */
-  overflow-y: auto;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+body {
+  font-family: "Comic Sans MS", cursive;
+  background-color: #2d0a3e;
+  color: #00ff00;
 }
 
-/* === PANELES DE ESTADO === */
-.state-panel {
+#app {
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
+}
+
+header {
+  background-color: #4a0e5c;
+  padding: 20px;
   text-align: center;
-  padding: 3rem 1rem;
-  flex: 1;
+  border-bottom: 5px solid #00ff00;
 }
-.state--loading { color: #58a6ff; }
-.state--error   { color: #f85149; }
-.error-icon { font-size: 2.5rem; }
-.error-text { font-size: 0.9rem; max-width: 20rem; }
 
-/* === SPINNER === */
+header h1 {
+  font-size: 28px;
+  color: #ffcc00;
+  text-shadow: 2px 2px 0 #ff0000, 4px 4px 0 #0000ff;
+  margin-bottom: 10px;
+}
+
+#badge {
+  display: inline-block;
+  padding: 5px 15px;
+  background-color: #ff00ff;
+  color: #00ff00;
+  font-size: 14px;
+  font-weight: bold;
+  border: 2px dashed #00ff00;
+}
+
+main {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Loading */
+#loading {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+#loading p {
+  font-size: 22px;
+  color: #ff00ff;
+  animation: blink 0.5s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 .spinner {
-  width: 2.5rem; height: 2.5rem;
-  border-radius: 50%;
-  border: 3px solid #21262d;
-  border-top-color: #58a6ff;
-  animation: spin 0.75s linear infinite;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 20px;
+  border: 8px solid #4a0e5c;
+  border-top-color: #00ff00;
+  border-radius: 0;
+  animation: spin 0.8s linear infinite;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
 
-/* === RETRY BTN === */
-.btn--retry {
-  background: #21262d; color: #e6edf3;
-  border: 1px solid #30363d;
-  padding: 0.5rem 1rem; border-radius: 0.5rem;
-  cursor: pointer; font-size: 0.85rem;
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
-.btn--retry:hover { background: #30363d; }
 
-/* === MENSAJES === */
-.messages-list { display: flex; flex-direction: column; gap: 0.75rem; }
-.message {
-  max-width: 78%; padding: 0.6rem 0.9rem;
-  border-radius: 1rem; font-size: 0.9rem;
-  line-height: 1.5; word-break: break-word;
+/* Error */
+#error {
+  text-align: center;
+  padding: 60px 20px;
+  background-color: #000;
+  border: 5px solid #ff0000;
 }
-.message--bot {
-  align-self: flex-start; background: #21262d; color: #e6edf3;
-  border-bottom-left-radius: 0.25rem;
-}
-.message--user {
-  align-self: flex-end; background: #1d4ed8; color: white;
-  border-bottom-right-radius: 0.25rem;
-}
-.message__author { font-size: 0.7rem; opacity: 0.6; margin-bottom: 0.2rem; font-weight: 600; }
 
-/* === COMPOSER ===
- *
- * ⚠️ BUG CSS #4 (bonus): el input sin min-width: 0 puede desbordar
- * ─────────────────────────────────────────────────────────────────
- * SÍNTOMA: En Responsive Mode con texto largo en el input,
- *   el input empuja fuera del composer y genera scroll horizontal.
- *
- * TODO: agregar min-width: 0 al .composer__input
- */
-.composer {
-  display: flex; gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: #161b22;
-  border-top: 1px solid #21262d;
-  flex-shrink: 0;
+#error p {
+  font-size: 18px;
+  color: #ff0000;
+  margin-bottom: 20px;
 }
-.composer__input {
-  flex: 1;
-  /* ⚠️ falta: min-width: 0 */
-  padding: 0.6rem 0.9rem;
-  background: #0d1117;
-  border: 1px solid #30363d;
-  border-radius: 1.5rem;
-  color: #e6edf3; font-size: 0.9rem; outline: none;
-}
-.composer__input:focus { border-color: #58a6ff; }
-.composer__btn {
-  width: 2.5rem; height: 2.5rem; border-radius: 50%;
-  border: none; background: #1d4ed8; color: white;
-  font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
-  display: grid; place-items: center;
-}
-.composer__btn:hover { background: #1e40af; }
 
-/* === UTILITY === */
-.hidden { display: none !important; }
+#retry {
+  padding: 12px 30px;
+  background-color: #ff00ff;
+  color: #00ff00;
+  border: 3px solid #00ff00;
+  font-size: 18px;
+  font-family: "Comic Sans MS", cursive;
+  font-weight: bold;
+  cursor: pointer;
+}
 
-/*
- * ──────────────────────────────────────────────────────────────────────
- * PLANTILLA DE PROMPT para los bugs de CSS (completala):
- *
- * Contexto:
- *   [SPA de chat mobile-first, vanilla CSS, layout flex...]
- *
- * Objetivo:
- *   [qué querés que pase en 320px con teclado simulado]
- *
- * Restricciones:
- *   [solo CSS, no librerías, mantener estructura del HTML...]
- *
- * Evidencia:
- *   - Síntoma observado en Responsive Mode: [completar]
- *   - CSS relevante actual:
- *     [pegar las reglas de .app, .messages y .composer__input]
- *
- * Formato de salida:
- *   [CSS corregido + explicación de cada propiedad + pasos de verificación]
- *
- * Criterios de éxito:
- *   [qué ves en Responsive Mode cuando está resuelto]
- * ──────────────────────────────────────────────────────────────────────
- */
+#retry:hover {
+  background-color: #00ff00;
+  color: #ff00ff;
+}
+
+/* Grid */
+#grid {
+  display: block;
+}
+
+.card {
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 15px;
+  background-color: #1a0525;
+  border: 3px solid #ff00ff;
+  text-align: center;
+}
+
+.card img {
+  width: 120px;
+  height: 120px;
+  border-radius: 60px;
+  border: 4px solid #00ff00;
+  object-fit: cover;
+}
+
+.card h3 {
+  font-size: 20px;
+  color: #ffcc00;
+  margin: 10px 0 5px;
+  text-decoration: underline;
+}
+
+.card p {
+  font-size: 14px;
+  color: #ff9999;
+  margin-bottom: 8px;
+}
+
+.status {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: #00ff00;
+  color: #000;
+  font-size: 12px;
+  font-weight: bold;
+  border: 2px dotted #000;
+}
+
+.status.Alive {
+  background-color: #00ff00;
+}
+
+.status.Dead {
+  background-color: #ff0000;
+}
+
+.status.unknown {
+  background-color: #999;
+}

@@ -1,7 +1,4 @@
-﻿/*
- * state.js — Fuente única de verdad del estado de la app
- */
-const state = {
+﻿const state = {
   status: "loading",
   data: null,
   error: null,
