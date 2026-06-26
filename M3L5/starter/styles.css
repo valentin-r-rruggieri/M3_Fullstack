@@ -1,21 +1,105 @@
-﻿* {
+﻿/*
+ * ============================================================
+ *  styles.css  —  Estilos (intencionalmente FEO)
+ * ============================================================
+ *
+ *  ?  ANTI-PATRÓN 13: Sin paleta de colores Simpsons
+ *  ?  ANTI-PATRÓN 14: Comic Sans como tipografía
+ *  ?  ANTI-PATRÓN 15: height: 100vh (se rompe en mobile)
+ *  ?  ANTI-PATRÓN 16: Sin CSS Grid (display: block)
+ *  ?  ANTI-PATRÓN 17: Sin responsive (no hay media queries)
+ *  ?  ANTI-PATRÓN 18: Sin CSS custom properties
+ *  ?  ANTI-PATRÓN 19: Spinner cuadrado
+ *  ?  ANTI-PATRÓN 20: Texto de carga con blink infinito
+ *  ?  ANTI-PATRÓN 21: Cards sin hover, sin sombras, sin personalidad
+ *
+ *  ?  Corregido por: PROMPT 02 — Diseñador CSS
+ *  ?  Archivo final: resolution/styles.css
+ * ============================================================
+ */
+
+/*
+ * ============================================================
+ *  Reset básico (esto está bien, se mantiene)
+ * ============================================================
+ */
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/*
+ * ============================================================
+ *  ANTI-PATRÓN 13: Fondo morado + texto verde neón
+ * ============================================================
+ *
+ *  PROBLEMA:
+ *    background-color: #2d0a3e (morado oscuro)
+ *    color: #00ff00 (verde neón)
+ *
+ *    Esto DUELE a la vista. Contraste horrible, nada que ver
+ *    con Los Simpsons. El color principal de la serie es el
+ *    AMARILLO (#ffd90f), no el morado ni el verde neón.
+ *
+ *  ANTI-PATRÓN 14: Comic Sans como tipografía
+ *
+ *  PROBLEMA:
+ *    font-family: "Comic Sans MS", cursive
+ *    Es una fuente no profesional, asociada a diseños amateurs.
+ *    Los sistemas modernos usan system-ui stack.
+ *
+ *  DETECCIÓN:
+ *    Solo mirá la pantalla. Duele. ??
+ *
+ *  SOLUCIÓN (Prompt 02):
+ *    body {
+ *      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", ...;
+ *      background: #fffde7;  // amarillo clarísimo
+ *      color: #424242;
+ *    }
+ * ============================================================
+ */
 body {
   font-family: "Comic Sans MS", cursive;
   background-color: #2d0a3e;
   color: #00ff00;
 }
 
+/*
+ * ============================================================
+ *  ANTI-PATRÓN 15: height: 100vh sin fallback
+ * ============================================================
+ *
+ *  PROBLEMA:
+ *    100vh toma el viewport completo incluyendo la barra de
+ *    herramientas del navegador. En mobile, cuando el teclado
+ *    virtual se abre, la altura disponible es MENOR a 100vh,
+ *    por lo que el contenido se sale de la pantalla.
+ *
+ *  DETECCIÓN:
+ *    1. Abrí DevTools → Responsive Mode (320px)
+ *    2. Hacé clic en el input (si hubiera)
+ *    3. Observá que el contenido se comprime mal
+ *
+ *  SOLUCIÓN (Prompt 02):
+ *    height: 100dvh;  // dynamic viewport height
+ *    con fallback:
+ *    height: 100vh;
+ *    height: 100dvh;
+ * ============================================================
+ */
 #app {
   height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
+/*
+ * ============================================================
+ *  Header: fondo morado, borde verde, texto con sombras extremas
+ * ============================================================
+ */
 header {
   background-color: #4a0e5c;
   padding: 20px;
@@ -26,10 +110,21 @@ header {
 header h1 {
   font-size: 28px;
   color: #ffcc00;
+  /*
+   * ANTI-PATRÓN: text-shadow extremo
+   *   Sombra roja + azul superpuesta.
+   *   Parece un error de señal de TV, no un título.
+   */
   text-shadow: 2px 2px 0 #ff0000, 4px 4px 0 #0000ff;
   margin-bottom: 10px;
 }
 
+/*
+ * ANTI-PATRÓN: Badge magenta con borde dashed verde
+ *   background-color: #ff00ff (magenta)
+ *   border: 2px dashed #00ff00 (verde neón, dashed)
+ *   Parece un error de render, no un badge de estado.
+ */
 #badge {
   display: inline-block;
   padding: 5px 15px;
@@ -42,6 +137,11 @@ header h1 {
 
 main {
   flex: 1;
+  /*
+   * ANTI-PATRÓN: Falta min-height: 0
+   *   Sin esto, el flex child no puede encogerse por debajo
+   *   de su contenido mínimo. Puede causar desbordamiento.
+   */
   padding: 20px;
   overflow-y: auto;
 }
@@ -59,6 +159,16 @@ main {
 #loading p {
   font-size: 22px;
   color: #ff00ff;
+  /*
+   * ANTI-PATRÓN 20: blink infinito
+   *   animation: blink 0.5s infinite
+   *   Parpadea constantemente. Molesto visualmente y puede
+   *   causar problemas a personas con epilepsia fotosensible.
+   *
+   * SOLUCIÓN (Prompt 02):
+   *   animation: pulse-text 1.5s ease-in-out infinite
+   *   Transición suave de opacidad 1 → 0.6, no un blink binario.
+   */
   animation: blink 0.5s infinite;
 }
 
@@ -67,6 +177,15 @@ main {
   50% { opacity: 0; }
 }
 
+/*
+ * ANTI-PATRÓN 19: Spinner cuadrado
+ *   border-radius: 0 → es un cuadrado girando, no un spinner.
+ *
+ * SOLUCIÓN (Prompt 02):
+ *   border-radius: 50% → círculo perfecto
+ *   border-top-color: var(--yellow)  → amarillo Simpsons
+ *   border-right-color: var(--navy)  → azul marino
+ */
 .spinner {
   width: 60px;
   height: 60px;
@@ -81,7 +200,10 @@ main {
   to { transform: rotate(360deg); }
 }
 
-/* Error */
+/*
+ * Error: fondo negro + borde rojo
+ *   Parece una pantalla de crash, no un mensaje de error amigable.
+ */
 #error {
   text-align: center;
   padding: 60px 20px;
@@ -111,11 +233,32 @@ main {
   color: #ff00ff;
 }
 
-/* Grid */
+/*
+ * ============================================================
+ *  ANTI-PATRÓN 16: Grid con display: block
+ * ============================================================
+ *
+ *  PROBLEMA:
+ *    #grid { display: block; }
+ *    Las cards se apilan una debajo de otra ocupando el 100%
+ *    del ancho. No hay grilla, no hay columnas, no hay responsive.
+ *
+ *  DETECCIÓN:
+ *    Las cards se ven como una lista vertical fea, sin importar
+ *    el tamaño de la pantalla.
+ *
+ *  SOLUCIÓN (Prompt 02):
+ *    display: grid;
+ *    grid-template-columns: repeat(3, 1fr);  // 3 columnas fijas
+ * ============================================================
+ */
 #grid {
   display: block;
 }
 
+/*
+ * Cards: fondo oscuro, borde magenta, texto apenas legible
+ */
 .card {
   width: 100%;
   margin-bottom: 15px;
@@ -126,6 +269,10 @@ main {
 }
 
 .card img {
+  /*
+   * Imagen circular con borde verde: recorta mal la imagen
+   * y es muy chica (120px) para apreciar al personaje.
+   */
   width: 120px;
   height: 120px;
   border-radius: 60px;
@@ -137,6 +284,7 @@ main {
   font-size: 20px;
   color: #ffcc00;
   margin: 10px 0 5px;
+  /* underline en el título: parece un link, no un nombre */
   text-decoration: underline;
 }
 
@@ -146,6 +294,23 @@ main {
   margin-bottom: 8px;
 }
 
+/*
+ * ============================================================
+ *  ANTI-PATRÓN: .status.Alive no funciona
+ * ============================================================
+ *
+ *  PROBLEMA:
+ *    El HTML genera: <span class="status">Alive</span>
+ *    El CSS espera:  .status.Alive  (clase "status" + clase "Alive")
+ *
+ *    Pero "Alive" NO es una clase CSS, es el contenido textual.
+ *    Por lo tanto los estilos de .status.Alive NUNCA se aplican.
+ *
+ *  SOLUCIÓN (Prompt 03 + Prompt 02):
+ *    El transform genera statusClass ("alive") que se usa como
+ *    clase CSS real: <span class="status-dot status-dot--alive">
+ * ============================================================
+ */
 .status {
   display: inline-block;
   padding: 4px 12px;
@@ -156,6 +321,11 @@ main {
   border: 2px dotted #000;
 }
 
+/*
+ * Las clases .status.Alive, .status.Dead y .status.unknown
+ * NUNCA se aplican porque el HTML no tiene esas clases.
+ * Esto es un bug intencional de diseño.
+ */
 .status.Alive {
   background-color: #00ff00;
 }
@@ -167,3 +337,55 @@ main {
 .status.unknown {
   background-color: #999;
 }
+
+/*
+ * ============================================================
+ *  ANTI-PATRÓN 17: Sin media queries (no responsive)
+ * ============================================================
+ *
+ *  PROBLEMA:
+ *    No hay @media queries. La app se ve igual (mal) en
+ *    mobile, tablet y desktop.
+ *
+ *  SOLUCIÓN (Prompt 02):
+ *    @media (max-width: 600px) {
+ *      #grid { grid-template-columns: repeat(2, 1fr); }
+ *    }
+ *    @media (max-width: 400px) {
+ *      header { padding: 8px 12px; }
+ *      ...
+ *    }
+ * ============================================================
+ */
+
+/*
+ * ============================================================
+ *  RESUMEN: Lo que cambia con PROMPT 02
+ * ============================================================
+ *
+ *  styles.css se reemplaza COMPLETAMENTE por:
+ *
+ *  Variables CSS (:root):
+ *    --yellow: #ffd90f       (amarillo Simpsons)
+ *    --navy: #1a237e         (azul marino)
+ *    --yellow-bg: #fffde7    (fondo amarillo clarísimo)
+ *    --alive: #43a047        (verde para personajes vivos)
+ *    --dead: #e53935         (rojo para fallecidos)
+ *    --shadow-sm, --md, --lg (sombras consistentes)
+ *
+ *  Diseño compacto:
+ *    - Fondo amarillo clarísimo (#fffde7)
+ *    - Header gradiente amarillo → naranja
+ *    - Grid de 3 columnas fijas
+ *    - Cards blancas compactas (imagen 140px)
+ *    - Textos truncados con text-overflow: ellipsis
+ *    - Status-dot en 8px (círculo de color)
+ *
+ *  Responsive:
+ *    ≤ 600px → 2 columnas
+ *    ≤ 400px → compacto extremo
+ *
+ *  Sin gradiente de cielo, sin nubes, sin estrella.
+ *  Puro amarillo Simpsons.
+ * ============================================================
+ */

@@ -9,11 +9,18 @@ function getStatusClass(status) {
   return map[status] || "unknown";
 }
 
+var FILTER_WORDS = ["suck"];
+
 function getFirstPhrase(phrases) {
-  if (Array.isArray(phrases) && phrases.length > 0) {
-    return phrases[0];
+  if (!Array.isArray(phrases) || phrases.length === 0) {
+    return "Sin frases";
   }
-  return "Sin frases";
+  var clean = phrases.filter(function (p) {
+    return !FILTER_WORDS.some(function (w) {
+      return p.toLowerCase().includes(w);
+    });
+  });
+  return clean.length > 0 ? clean[0] : "Sin frases";
 }
 
 function toCharacterProfile(raw) {

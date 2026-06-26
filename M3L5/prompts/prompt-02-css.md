@@ -1,13 +1,15 @@
 # Prompt 02 — Diseñador CSS
 
-> Rol: **Diseñador frontend especializado en CSS responsive y UI/UX**
-> Objetivo: Transformar el CSS actual (feo, no responsive, con errores de diseño) en una interfaz profesional temática de Los Simpsons.
+> Rol: **Diseñador frontend especializado en CSS responsive, UI/UX y tematización**
+> Objetivo: Transformar el CSS actual (feo, no responsive, con errores de diseño) en una interfaz profesional con temática de Los Simpsons, completamente responsive y accesible.
 
 ---
 
 ## Contexto
 
-La aplicación es una galería de personajes de Los Simpsons con esta estructura HTML:
+Aplicación vanilla HTML/CSS/JS: galería de personajes de Los Simpsons usando la API `https://thesimpsonsapi.com/api`.
+
+### Estructura HTML fija (NO modificar)
 
 ```html
 <div id="app">
@@ -29,7 +31,7 @@ La aplicación es una galería de personajes de Los Simpsons con esta estructura
 </div>
 ```
 
-Cada card se renderiza con esta estructura HTML:
+### Estructura HTML de cada card (NO modificar)
 
 ```html
 <article class="card">
@@ -47,38 +49,78 @@ Cada card se renderiza con esta estructura HTML:
 </article>
 ```
 
-**Tema:** Los Simpsons — usar colores icónicos: amarillo Simpsons (#fdd835), azul cielo, rojo de la camiseta de Bart, etc.
+### API y assets
+
+- Imágenes CDN: `https://cdn.thesimpsonsapi.com/500/character/{id}.webp`
+- Colores icónicos Simpsons: amarillo `#ffd90f`, amarillo oscuro `#f9a825`, naranja `#f57f17`, azul marino `#1a237e`, rojo `#e53935`
+- Los personajes pueden estar "Alive" (verde), "Dead" (rojo), o sin estado (gris `#bdbdbd`)
 
 ---
 
 ## Objetivo
 
-Reemplazar completamente `styles.css` para lograr:
+Reemplazar **completamente** `styles.css` para lograr una interfaz que cumpla estrictamente con:
 
-1. **Tema visual Simpsons profesional** — fondo con gradiente celeste (como el cielo de Springfield), header amarillo con texto azul oscuro, cards blancas con sombras suaves.
-2. **Layout responsive** — CSS Grid con `auto-fill` y `minmax()`, 1 columna en mobile (< 640px), 2 en tablet, 3+ en desktop.
-3. **Mobile-first** — usar `100dvh` con fallback `100vh`, `min-height: 0` en flex children, `overflow: hidden` en contenedor principal.
-4. **Cards con personalidad** — imagen de portada (220px height, object-fit: cover), nombre en azul oscuro, badge de estado con círculo de color (verde = Alive, rojo = Dead, gris = unknown), edad, frase destacada en itálica sobre fondo gris claro.
-5. **Animaciones sutiles** — hover en cards (elevación + sombra), spinner circular, transiciones suaves.
-6. **Estado de error** — card de error centrada con fondo blanco, sombra, botón amarillo.
+### 1. Temática Simpsons pura (basada en paleta amarilla)
+- **Fondo**: color sólido amarillo muy claro `#fffde7` (NO gradiente de cielo). La app debe sentirse EMPAPADA de amarillo Simpsons.
+- **Decoración**: pseudo-elementos `body::before` y `body::after` con círculos amarillos semitransparentes (opacidad 0.1-0.15) como manchas de color de fondo.
+- **Header**: gradiente amarillo (`#ffd90f` → `#f9a825` → `#f57f17`), texto azul marino `#1a237e`. Compacto (padding vertical 10px).
+- **Estrella blanca** en el título con `clip-path: polygon()` de 5 puntas, 22x22px.
+- **Badge**: estilo glassmorphism con `backdrop-filter: blur(4px)`, transparente, texto navy.
+- **Cards**: blancas con `border: 1px solid #f5f5f5`. Al hover: borde amarillo y elevación sutil (translateY -3px). SIN barra degradada inferior (mantener simple).
+- **Frase destacada**: fondo `#fff8e1` (amarillo clarísimo), SIN borde izquierdo. Comillas con pseudo-elementos `::before`/`::after` en color amarillo oscuro.
+
+### 2. Cards COMPACTAS (densidad alta de información)
+- **Imagen**: altura fija de `140px` (no fluidas). `object-fit: cover`.
+- **Body**: padding reducido `8px 10px 10px`, gap de 3px entre elementos.
+- **Nombre**: `14px`, bold 800, navy, `white-space: nowrap` con `text-overflow: ellipsis`.
+- **Ocupación**: `11px`, color `#bdbdbd`, also truncada con ellipsis.
+- **Metadata**: padding-top `5px`, separador con `border-top: 1px solid #f5f5f5`.
+- **Status-dot**: círculo de `8px` (no 10px).
+- **Status text**: `10px`, uppercase.
+- **Edad**: `10px`, color `#bdbdbd`, margin-left auto.
+- **Frase**: `11px`, padding `6px 8px`, truncada con ellipsis.
+
+### 3. Grid de alta densidad
+- **Grid**: `grid-template-columns: repeat(3, 1fr)` — exactamente 3 columnas fijas.
+- **Max-width**: `640px` centrado (para que se vea contenido compacto y centrado).
+- **Gap**: `10px` entre cards.
+- En tablet (< 600px): `grid-template-columns: repeat(2, 1fr)`.
+- En mobile (< 400px): `grid-template-columns: repeat(2, 1fr)`, gap `6px`, imagen altura `100px`, body padding `5px 6px 6px`.
+
+### 4. Diseño consistente con variables CSS
+- **CSS Custom Properties** en `:root`: `--yellow`, `--yellow-dark`, `--yellow-deep`, `--yellow-light`, `--yellow-bg`, `--navy`, `--red`, `--gray-*`, sombras y radios pequeños (6px, 10px, 14px).
+- **Header**: sin clamp, valores fijos compactos (20px título, 11px badge).
+- **Spinner**: `40px` (no 52px), borde `4px`.
+- **Error**: card blanca con `border-top: 3px solid red` (no border-left), padding `32px`.
+
+### 5. Responsive
+- **Mobile (< 480px)**: header más chico (padding 8px 12px, título 17px), main padding 8px, cards más chicas.
+- **No usar `clamp()`** en ningún lado (son valores fijos compactos).
+- **Touch targets**: botón retry con `min-height: 40px`.
+- **Mobile keyboard**: `height: 100dvh` con fallback `100vh`.
 
 ---
 
-## Restricciones
+## Restricciones (estrictas)
 
-- Sin frameworks CSS (no Bootstrap, Tailwind, etc.).
-- Sin librerías externas.
-- Sin JavaScript para el layout (solo CSS).
-- Mantener las clases HTML existentes (`.card`, `.card__body`, `.card__name`, etc.).
-- No modificar `index.html`.
-- Compatibilidad con navegadores modernos (Chrome, Firefox, Edge, Safari).
-- Usar unidades relativas (rem, %, fr) en vez de px fijos cuando sea posible.
+- ❌ **No** frameworks CSS (nada de Bootstrap, Tailwind, Materialize, etc.)
+- ❌ **No** librerías externas
+- ❌ **No** JavaScript para el layout (solo CSS)
+- ❌ **No** modificar `index.html`
+- ❌ **No** fuentes externas (solo system-ui stack: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif`)
+- ❌ **No** gradientes de cielo azul (usar fondo amarillo claro `#fffde7`)
+- ❌ **No** valores hardcodeados de color (usar variables CSS)
+- ✅ **Sí** usar `::before` y `::after` para decoraciones amarillas
+- ✅ **Sí** usar `backdrop-filter` para efecto glassmorphism en badge
+- ✅ **Sí** usar `clip-path` para estrella en título
+- ✅ **Sí** usar `text-overflow: ellipsis` para textos largos en cards
 
 ---
 
 ## Evidencia
 
-### CSS actual (con errores)
+### CSS actual (con errores) — este es el código que hay que REEMPLAZAR COMPLETAMENTE
 
 ```css
 * {
@@ -249,56 +291,134 @@ main {
 }
 ```
 
-**Errores detectados:**
-1. **Fondo morado oscuro (#2d0a3e) + texto verde neón (#00ff00)** — combo ilegible y agresivo visualmente.
-2. **Comic Sans MS** — fuente no profesional.
-3. **Text-shadow extremo** en el título (rojo + azul) — efecto feo.
-4. **Badge con fondo magenta (#ff00ff) y borde dashed verde** — parece error de señal de TV.
-5. **Spinner con `border-radius: 0`** — spinner cuadrado en vez de circular.
-6. **Texto de loading con `blink` infinito** — molesto y poco accesible.
-7. **Panel de error con fondo negro (#000) + borde rojo** — parece página de crash.
-8. **Botón retry magenta con borde verde dashed** — parece juguete infantil.
-9. **Grid con `display: block`** — las cards apiladas sin grid responsivo.
-10. **Cards con fondo #1a0525 + borde magenta** — ilegible.
-11. **Imagen circular (border-radius: 60px) + borde verde** — recorta mal la imagen.
-12. **`height: 100vh`** — se rompe en mobile con teclado virtual (el composer/input no existe pero el layout igual se rompe en ciertos viewports).
-13. **Sin media queries** — no hay responsive en absoluto.
-14. **Sin `min-height: 0` en main** — el flex child no puede encogerse correctamente.
+### Errores detectados en el CSS actual
+
+| # | Error | Impacto |
+|---|-------|---------|
+| 1 | Fondo morado `#2d0a3e` + texto verde neón `#00ff00` | Ilegible, nada que ver con Simpsons |
+| 2 | Comic Sans MS como tipografía principal | No profesional, rompe el tema |
+| 3 | Text-shadow rojo+azul en título | Efecto feo, parece error de render |
+| 4 | Badge magenta `#ff00ff` con borde dashed verde | Sin coherencia con paleta amarilla |
+| 5 | Spinner cuadrado (`border-radius: 0`) | No es un spinner, es un cuadrado girando |
+| 6 | Texto loading con blink infinito | Molesto, poco accesible |
+| 7 | Error con fondo negro + borde rojo | Parece pantalla de crash |
+| 8 | Botón retry magenta con borde verde dashed | No parece un botón clickeable |
+| 9 | Grid con `display: block` | Sin responsive, todo apilado |
+| 10 | Cards fondo `#1a0525` + borde magenta | Texto ilegible, nada de amarillo |
+| 11 | Imagen circular 120px + borde verde | Recorta mal, muy chica, sin amarillo |
+| 12 | `height: 100vh` sin fallback | Se rompe en mobile con teclado virtual |
+| 13 | Sin media queries | No existe responsive en absoluto |
+| 14 | Sin `min-height: 0` en main | Flex child no puede encogerse |
+| 15 | Cards de 100% width sin grid | Sin densidad, ocupan todo el ancho |
+| 16 | Sin CSS custom properties | Código repetitivo, difícil de mantener |
+| 17 | Imagen 120px demasiado chica | No se ve bien el personaje |
+| 18 | Sin hover effects en cards | No hay feedback interactivo |
+| 19 | Sin NADA de amarillo Simpsons | El color más icónico de la serie ausente |
+| 20 | Texto de loading en magenta (#ff00ff) | Duele a la vista, cero Simpsons |
 
 ---
 
 ## Formato de salida
 
-Proporcioná el archivo `styles.css` **completo y reemplazado** (no parches) que incluya:
+Proporcioná el archivo `styles.css` **COMPLETO** (no parches ni fragmentos) que incluya **OBLIGATORIAMENTE** estos bloques en orden:
 
-1. **Reset y tipografía** — sistema de fuentes nativas (system-ui stack), colores base.
-2. **Layout#app** — `height: 100dvh` + fallback `100vh`, `overflow: hidden`.
-3. **Header** — gradiente amarillo (#fdd835 → #f9a825), texto azul marino (#1a237e), flex con espacio entre.
-4. **Badge** — pill con fondo semi-transparente blanco, texto oscuro.
-5. **Main** — `flex: 1`, `min-height: 0`, `overflow-y: auto`, padding.
-6. **Loading** — spinner circular (border-radius: 50%) amarillo, texto gris, centrado.
-7. **Error** — card blanca centrada con sombra, texto rojo, botón amarillo con hover.
-8. **Grid** — `display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px`.
-9. **Card** — fondo blanco, border-radius 12px, sombra suave, hover que eleva.
-10. **Card image** — 100% width, 220px height, object-fit: cover.
-11. **Card body** — padding 16px, flex column con gap.
-12. **Card meta** — status-dot (10px círculo verde/rojo/gris), status text, edad a la derecha.
-13. **Card phrase** — fondo gris #f5f5f5, border-radius 8px, itálica.
-14. **Media queries** — 640px breakpoint para mobile, entre 641-1024px para 2 columnas.
+### Bloque 1: CSS Custom Properties (`:root`)
+- `--yellow`, `--yellow-dark`, `--yellow-light`
+- `--navy`, `--sky-top`, `--sky-mid`, `--sky-bottom`
+- `--white`, `--gray-50`, `--gray-100`, `--gray-300`, `--gray-500`, `--gray-700`, `--gray-900`
+- `--alive`, `--dead`, `--unknown`
+- `--shadow-sm`, `--shadow-md`, `--shadow-lg`
+- `--radius-sm`, `--radius-md`, `--radius-lg`
+- `--font` con system-ui stack
+
+### Bloque 2: Reset + Body
+- `* { margin: 0; padding: 0; box-sizing: border-box; }`
+- Body con gradiente vertical `sky-top → sky-mid → sky-bottom → white`
+- `body::before` y `body::after` como nubes (elipses blancas con `border-radius: 50%`, fijas, z-index 0, pointer-events: none)
+
+### Bloque 3: App Layout
+- `height: 100dvh` + fallback `100vh`
+- `display: flex; flex-direction: column; overflow: hidden`
+
+### Bloque 4: Header
+- Gradiente `yellow → yellow-dark → #f57f17`
+- `padding` con `clamp()`
+- `header::after` con círculo radial semi-transparente (decoración)
+- `h1` con `font-size: clamp()`, estrella via `::before` con `clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)`
+
+### Bloque 5: Badge
+- `backdrop-filter: blur(4px)`, fondo semi-transparente, border-radius 20px
+
+### Bloque 6: Main
+- `flex: 1; min-height: 0; overflow-y: auto; scroll-behavior: smooth`
+
+### Bloque 7: Loading
+- Spinner circular 52px, borde `gray-300`, top-color `yellow`, right-color `navy`
+- Animación con `cubic-bezier(0.4, 0, 0.2, 1)`
+- Texto con `pulse-text` (opacidad 1 → 0.6 → 1)
+
+### Bloque 8: Error
+- Card blanca con `border-left: 4px solid var(--dead)`, `max-width: 420px`
+- Botón con gradiente amarillo, `min-height: 44px`, hover eleva 2px
+
+### Bloque 9: Grid
+- `grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr))`
+- `gap: clamp(12px, 2vw, 24px)`
+
+### Bloque 10: Card
+- Blanca, border-radius, sombra, hover translateY(-6px)
+- `card::after` con barra degradada horizontal (yellow → navy → dead), `scaleX(0)` → `scaleX(1)` al hover
+- Imagen con `height: clamp(180px, 25vw, 240px)`, hover scale(1.03)
+
+### Bloque 11: Card Body
+- Padding con clamp, flex column, gap 6px
+
+### Bloque 12: Card Meta
+- Border-top sutil, flex wrap, gap clamp
+- Status-dot: 10px círculo con `box-shadow: 0 0 4px currentColor`
+- Status: uppercase, letter-spacing 0.5px
+- Age: margin-left auto
+
+### Bloque 13: Card Phrase
+- background `gray-50`, border-left `3px solid yellow`
+- `::before` con comilla izquierda `\201C`, `::after` con comilla derecha `\201D`
 
 ---
 
-## Criterios de éxito
+## Criterios de éxito (checklist de verificación)
 
-- [ ] Fondo con gradiente celeste (sin morado ni verde neón).
-- [ ] Header amarillo con texto azul oscuro (sin magenta ni bordes dashed).
-- [ ] Tipografía system-ui legible (sin Comic Sans).
-- [ ] Grid responsive: 1 col en mobile, 2 en tablet, 3+ en desktop.
-- [ ] Cards blancas con sombra suave y hover que eleva.
-- [ ] Spinner circular con animación suave (sin blink molesto).
-- [ ] Panel de error: card blanca centrada, botón amarillo.
-- [ ] Status-dot: círculo verde (Alive), rojo (Dead), gris (unknown).
-- [ ] Imágenes de personaje bien recortadas (object-fit: cover).
-- [ ] Frase destacada en itálica con fondo gris.
-- [ ] En mobile (320px): sin scroll horizontal, todo visible.
-- [ ] En mobile con teclado virtual: layout no se rompe (usa 100dvh).
+### Temática Simpsons
+- [ ] Fondo gradiente azul cielo → blanco (nada de morado ni verde neón)
+- [ ] Al menos 2 nubes decorativas con pseudo-elementos CSS
+- [ ] Header gradiente amarillo → naranja (no magenta ni bordes dashed)
+- [ ] Estrella Simpsons en el título con `clip-path`
+- [ ] Tipografía system-ui en toda la app (sin Comic Sans)
+- [ ] Barra degradada decorativa en cards al hover
+- [ ] Paleta cromática consistente: amarillo, azul marino, azul cielo, rojo, verde, grises
+
+### Responsive
+- [ ] 320px: 1 columna, sin scroll horizontal, touch targets ≥ 44px
+- [ ] 480px: 1 columna, textos fluidos con clamp
+- [ ] 768px: 2 columnas, header compacto
+- [ ] 1024px: 3 columnas, cards con hover effects
+- [ ] 1440px+: 4+ columnas, max-width 1280px centrado
+- [ ] Mobile keyboard: layout no se rompe (100dvh)
+- [ ] No hay valores fijos en px para tamaños de fuente (usar clamp)
+- [ ] Imágenes fluidas con height en clamp
+
+### UI/UX
+- [ ] Cards blancas con sombra y hover que eleva
+- [ ] Spinner circular con animación smooth (sin blink)
+- [ ] Panel de error: card blanca, borde izquierdo rojo, botón amarillo
+- [ ] Status-dot: círculo con glow verde/rojo/gris
+- [ ] Frase con comillas tipográficas y borde amarillo
+- [ ] Badge con glassmorphism (backdrop-filter: blur)
+- [ ] Transiciones suaves en todos los hover effects (cubic-bezier)
+- [ ] Sin parpadeos ni animaciones que puedan causar molestias
+
+### Código
+- [ ] CSS Custom Properties en :root
+- [ ] Sin frameworks ni librerías externas
+- [ ] Sin modificación de index.html
+- [ ] Sin fuentes externas
+- [ ] Código organizado en bloques con comentarios
