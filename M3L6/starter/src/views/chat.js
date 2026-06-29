@@ -1,22 +1,17 @@
-// ============================================================
-// STARTER — Chat con anti-patrón (bugs intencionales)
-// ============================================================
-// Este chat "funciona" con el mock, pero tiene 3 problemas:
-//
-//   1. System prompt dentro de messages[] (error de OpenAI pattern)
-//      → Anthropic devolvería HTTP 400 Bad Request.
-//
-//   2. No mantiene historial real
-//      → el modelo responde sin contexto de la conversación.
-//
-//   3. raw.content accedido como si fuera string
-//      → la API real devuelve content[] como array de bloques.
-//
-// Tu tarea: reemplazar este renderChat() usando los módulos del engine.
-// ============================================================
+/*
+ * views/chat.js — Chat engine completo (Resolution)
+ *
+ * Pipeline:
+ *   submit → appendUserMessage → getTrimmedHistory → buildPayload
+ *   → callAI → normalizeAIResponse → appendAssistantMessage → appendMessage
+ *
+ * Defensas: isLoading, lockUI, debounce, retry 429, easter eggs
+ */
 
-import { getCharacter } from "../engine/payload.js";
+import { appendUserMessage, appendAssistantMessage, getTrimmedHistory, resetHistory } from "../engine/history.js";
+import { buildPayload, isValidPayload, getCharacter } from "../engine/payload.js";
 import { callAI } from "../engine/mockApi.js";
+import { normalizeAIResponse } from "../engine/normalizer.js";
 import {
   lockUI,
   unlockUI,
@@ -24,11 +19,113 @@ import {
   hideTyping,
   appendMessage,
   showStatus,
+  updateCharacterUI,
+  clearMessages,
 } from "../ui/render.js";
+
+let chatHistory = [];
+let currentCharacter = null;
+let isLoading = false;
+
+const EASTER_EGGS = {
+  ping: { text: "🏓 ¡pong!", meta: "🥚 Easter egg" },
+  pong: { text: "🏓 ¡ping!", meta: "🥚 Easter egg" },
+  "42": { text: "🌌 La respuesta al sentido de la vida, el universo y todo lo demás.", meta: "🥚 Easter egg" },
+  gracias: { text: "¡De nada! 😊 Recordá: la ciencia nunca termina, solo encuentra nuevas preguntas.", meta: "" },
+};
+
+function checkEasterEgg(text) {
+  return EASTER_EGGS[text.toLowerCase().trim()] || null;
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function debounce(fn, delay) {
+  let timer = null;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+async function retryOnceAfter429(error, payload) {
+  const seconds = error.retryAfterSeconds ?? 5;
+  for (let i = seconds; i > 0; i -= 1) {
+    showStatus("retrying", `⏳ Rate limit. Reintentando en ${i}s...`);
+    await wait(1000);
+  }
+  showTyping();
+  showStatus("loading", "Reintentando...");
+  const raw = await callAI(payload);
+  hideTyping();
+  const { text: aiText, truncated } = normalizeAIResponse(raw);
+  chatHistory = appendAssistantMessage(chatHistory, aiText);
+  appendMessage("assistant", aiText || "No recibí texto en la respuesta.", truncated ? "⚠️ truncada" : "");
+  showStatus("hidden");
+}
+
+async function sendMessage(text) {
+  if (isLoading) return;
+  const trimmed = text.trim();
+  if (!trimmed) return;
+
+  document.querySelector("#composer-input").value = "";
+  isLoading = true;
+  lockUI();
+
+  chatHistory = appendUserMessage(chatHistory, trimmed);
+  appendMessage("user", trimmed);
+
+  const egg = checkEasterEgg(trimmed);
+  if (egg) {
+    chatHistory = appendAssistantMessage(chatHistory, egg.text);
+    appendMessage("assistant", egg.text, egg.meta, true);
+    isLoading = false;
+    unlockUI();
+    return;
+  }
+
+  const trimmedHistory = getTrimmedHistory(chatHistory, 10);
+  const payload = buildPayload(currentCharacter, trimmedHistory);
+  console.log("[Payload válido]", isValidPayload(payload), payload);
+
+  showTyping();
+  showStatus("loading", "Pensando...");
+
+  try {
+    const raw = await callAI(payload);
+    hideTyping();
+    const { text: aiText } = normalizeAIResponse(raw);
+    chatHistory = appendAssistantMessage(chatHistory, aiText);
+    appendMessage("assistant", aiText || "No recibí texto en la respuesta.");
+    showStatus("hidden");
+  } catch (err) {
+    hideTyping();
+    if (err.status === 429) {
+      console.warn("[sendMessage 429]", err);
+      try {
+        await retryOnceAfter429(err, payload);
+      } catch (retryErr) {
+        hideTyping();
+        showStatus("error", "❌ Error al reintentar. Intentá más tarde.");
+        console.error("[retry failed]", retryErr);
+      }
+    } else {
+      console.error("[sendMessage error]", err);
+      showStatus("error", "❌ Error de conexión. Revisá la consola.");
+    }
+  } finally {
+    isLoading = false;
+    unlockUI();
+  }
+}
 
 export function renderChat(characterKey) {
   const key = characterKey || "science";
-  const currentCharacter = getCharacter(key);
+  currentCharacter = getCharacter(key);
+  chatHistory = resetHistory();
 
   const $app = document.querySelector("#app");
   $app.className = "view-chat";
@@ -69,53 +166,23 @@ export function renderChat(characterKey) {
   const themeKey = getThemeKey(currentCharacter.name);
   $app.classList.add(`theme-${themeKey}`);
 
-  document.querySelector("#composer-form").addEventListener("submit", async (event) => {
+  clearMessages();
+  updateCharacterUI(currentCharacter);
+
+  const debouncedSend = debounce(() => {
+    const text = document.querySelector("#composer-input").value;
+    sendMessage(text);
+  }, 300);
+
+  document.querySelector("#composer-form").addEventListener("submit", (event) => {
     event.preventDefault();
-
-    const input = document.querySelector("#composer-input");
-    const text = input.value.trim();
-    if (!text) return;
-
-    input.value = "";
-    appendMessage("user", text);
-    lockUI();
-    showTyping();
-
-    try {
-      // ❌ Bug 1: system dentro de messages[] (patrón OpenAI, no Anthropic)
-      // ❌ Bug 2: sin historial
-      const raw = await callAI({
-        model: "claude-3-5-sonnet-latest",
-        messages: [
-          { role: "system", content: currentCharacter.system },
-          { role: "user", content: text },
-        ],
-        max_tokens: 150,
-      });
-
-      hideTyping();
-
-      // ❌ Bug 3: raw.content no es string, es array de bloques
-      const aiText = raw?.content ?? "";
-      appendMessage("assistant", aiText);
-
-      showStatus("hidden");
-    } catch (err) {
-      hideTyping();
-      showStatus("error", "Error de conexión. Revisá la consola.");
-      console.error("[Starter error]", err);
-    } finally {
-      unlockUI();
-    }
+    debouncedSend();
   });
 
   document.querySelector("#reset-btn").addEventListener("click", () => {
-    document.querySelector("#messages").querySelectorAll(".message").forEach((el) => el.remove());
-    document.querySelector("#messages-empty").classList.remove("hidden");
-    showStatus("hidden");
-    const counter = document.querySelector("#counter-badge");
-    if (counter) counter.textContent = "💬 #0";
-    console.log("[Chat reseteado]");
+    chatHistory = resetHistory();
+    clearMessages();
+    console.log("[Historial reseteado]");
   });
 }
 
