@@ -56,18 +56,11 @@ function estimateTokens(text) {
 
 /*
  * callAI(payload)
- * Simula la llamada a la API. Cada 4to request lanza 429 para practicar retry-after.
+ * Simula la llamada a la API.
  */
 export async function callAI(payload) {
   requestCount += 1;
   await simulateLatency();
-
-  if (requestCount % 4 === 0) {
-    const error = new Error("Rate limit exceeded");
-    error.status = 429;
-    error.retryAfterSeconds = 5;
-    throw error;
-  }
 
   const characterKey = detectCharacterKey(payload);
   const responses = MOCK_RESPONSES[characterKey];
