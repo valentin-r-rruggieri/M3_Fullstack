@@ -35,6 +35,10 @@ Nunca aparece en el navegador.
 | `src/views/chat.js` | Usa `callAI()` desde `aiClient.js` |
 | `src/engine/aiClient.js` | Hace `POST /api/chat` desde el frontend |
 | `api/chat.js` | Lee `GEMINI_API_KEY`, llama a Gemini y adapta la respuesta |
+| `api/utils/request.js` | Lee el body, valida `messages[]` y extrae configuracion |
+| `api/utils/gemini.js` | Convierte historial M3L6 a `contents[]` de Gemini |
+| `api/utils/response.js` | Arma respuesta `content[]` compatible con `normalizer.js` |
+| `api/utils/errors.js` | Centraliza errores HTTP y rate limit |
 | `.env.example` | Template de variable de entorno |
 | `package.json` | Dependencia `@google/generative-ai` y script `npm run local` |
 
@@ -71,12 +75,16 @@ No usar `live-server`, porque `live-server` no ejecuta la carpeta `api/`.
 2. views/chat.js arma historial y payload
 3. aiClient.js hace fetch("/api/chat")
 4. Vercel ejecuta api/chat.js
-5. api/chat.js lee process.env.GEMINI_API_KEY
-6. api/chat.js llama a Gemini
-7. api/chat.js devuelve content[]
-8. normalizer.js convierte content[] a texto
-9. render.js pinta la burbuja
+5. api/utils/request.js valida payload.messages
+6. api/utils/gemini.js convierte TODO el historial a contents[]
+7. api/chat.js lee process.env.GEMINI_API_KEY
+8. api/chat.js llama a Gemini
+9. api/utils/response.js devuelve content[]
+10. normalizer.js convierte content[] a texto
+11. render.js pinta la burbuja
 ```
+
+`payload.messages` contiene el historial recortado de M3L6. No se envia solo el ultimo mensaje.
 
 ---
 

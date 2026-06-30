@@ -11,6 +11,10 @@
  */
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { isRateLimitError, getHttpStatus } from "./utils/errors.js";
+import { toGeminiContents } from "./utils/gemini.js";
+import { parseJsonBody, getMessages, getGenerationSettings } from "./utils/request.js";
+import { createChatResponse } from "./utils/response.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -18,28 +22,24 @@ export default async function handler(req, res) {
   }
 
   try {
-    const payload = parseBody(req.body);
+    const payload = parseJsonBody(req.body);
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
       return res.status(500).json({ error: "GEMINI_API_KEY no configurada" });
     }
 
-    const messages = Array.isArray(payload?.messages) ? payload.messages : [];
-    if (messages.length === 0) {
-      return res.status(400).json({ error: "El payload debe incluir messages[]" });
-    }
-
-    const system = typeof payload.system === "string" ? payload.system : "";
-    const temperature = typeof payload.temperature === "number" ? payload.temperature : 0.7;
-    const maxOutputTokens = typeof payload.max_tokens === "number" ? payload.max_tokens : 150;
+    const messages = getMessages(payload);
+    const { system, modelName, temperature, maxOutputTokens } = getGenerationSettings(payload);
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model: modelName,
       systemInstruction: system,
     });
 
+    // messages[] viene del historial recortado de M3L6. Lo enviamos completo
+    // a Gemini para que el modelo reciba contexto conversacional.
     const contents = toGeminiContents(messages);
 
     const result = await model.generateContent({
@@ -52,22 +52,7 @@ export default async function handler(req, res) {
 
     const text = result.response.text().trim();
 
-    return res.status(200).json({
-      id: `msg_gemini_${Date.now()}`,
-      type: "message",
-      role: "assistant",
-      content: [
-        {
-          type: "text",
-          text,
-        },
-      ],
-      stop_reason: "end_turn",
-      usage: {
-        input_tokens: estimateTokens(JSON.stringify(payload)),
-        output_tokens: estimateTokens(text),
-      },
-    });
+    return res.status(200).json(createChatResponse({ text, payload }));
   } catch (error) {
     console.error("[/api/chat] Error:", error);
 
@@ -78,33 +63,8 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(500).json({
-      error: "Error generando respuesta del chat",
+    return res.status(getHttpStatus(error)).json({
+      error: error.message || "Error generando respuesta del chat",
     });
   }
-}
-
-function parseBody(body) {
-  if (typeof body === "string") {
-    return JSON.parse(body || "{}");
-  }
-  return body ?? {};
-}
-
-function toGeminiContents(messages) {
-  return messages
-    .filter((msg) => msg?.role === "user" || msg?.role === "assistant")
-    .map((msg) => ({
-      role: msg.role === "assistant" ? "model" : "user",
-      parts: [{ text: String(msg.content ?? "") }],
-    }));
-}
-
-function estimateTokens(text) {
-  return Math.max(1, Math.ceil(String(text).length / 4));
-}
-
-function isRateLimitError(error) {
-  const text = String(error?.message ?? "");
-  return error?.status === 429 || text.includes("429") || text.toLowerCase().includes("quota");
 }

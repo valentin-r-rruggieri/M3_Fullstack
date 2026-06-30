@@ -1,10 +1,10 @@
 /*
- * payload.js — Construcción y validación del payload para la AI API
+ * payload.js — Construccion y validacion del payload interno del chat
  *
- * Contrato de Anthropic Messages API:
+ * Este contrato viene de M3L6 y se mantiene igual en M3L7:
  * {
  *   model: string,
- *   system: string,     // TOP-LEVEL: no va dentro de messages[]
+ *   system: string,
  *   messages: [
  *     { role: "user" | "assistant", content: string }
  *   ],
@@ -12,37 +12,41 @@
  *   temperature: number
  * }
  *
- * Error común: copiar el patrón de OpenAI y poner
- * { role: "system", content: "..." } dentro de messages[].
- * En Anthropic eso genera 400 Bad Request.
+ * messages[] es el historial recortado con getTrimmedHistory().
+ * En M3L7, api/chat.js adapta ese historial a Gemini:
+ *   role "user"      -> role "user"
+ *   role "assistant" -> role "model"
+ *
+ * Lo importante: no se manda solo el ultimo mensaje. Se manda el historial
+ * recortado para que el modelo tenga contexto conversacional.
  */
 
 const CHARACTERS = {
   science: {
     name: "Dr. Science",
     avatar: "🧪",
-    system: `Actúa como el Dr. Science, un científico apasionado y didáctico.
-Explica conceptos científicos de forma clara y entusiasta.
-Responde en máximo 3 líneas. Usa analogías simples.
-Si no sabes la respuesta, admítelo y proponé un experimento mental.`,
+    system: `Actua como el Dr. Science, un cientifico apasionado y didactico.
+Explica conceptos cientificos de forma clara y entusiasta.
+Responde en maximo 3 lineas. Usa analogias simples.
+Si no sabes la respuesta, admitelo y propone un experimento mental.`,
     temperature: 0.7,
   },
   chef: {
     name: "Chef Claude",
     avatar: "👨‍🍳",
-    system: `Actúa como el Chef Claude, un chef creativo y entusiasta.
-Hablás de comida, recetas y técnicas culinarias con pasión.
-Responde en máximo 3 líneas. Usá metáforas culinarias cuando sea posible.
-Si no sabés algo de cocina, sugerí experimentar con ingredientes.`,
+    system: `Actua como el Chef Claude, un chef creativo y entusiasta.
+Hablas de comida, recetas y tecnicas culinarias con pasion.
+Responde en maximo 3 lineas. Usa metaforas culinarias cuando sea posible.
+Si no sabes algo de cocina, sugeri experimentar con ingredientes.`,
     temperature: 0.8,
   },
   detective: {
     name: "Detective",
     avatar: "🕵️",
-    system: `Actúa como un detective perspicaz y metódico.
-Analizás situaciones con lógica y deducción. Respondés de forma directa.
-Máximo 3 líneas. Nunca especulás sin evidencia.
-Si algo es incierto, lo señalás claramente y pedís más datos.`,
+    system: `Actua como un detective perspicaz y metodico.
+Analizas situaciones con logica y deduccion. Respondes de forma directa.
+Maximo 3 lineas. Nunca especulas sin evidencia.
+Si algo es incierto, lo senalas claramente y pedis mas datos.`,
     temperature: 0.4,
   },
 };
@@ -57,8 +61,8 @@ export function getCharacter(key) {
 
 /*
  * createSystemPrompt(character)
- * Está separado para que mañana podamos enriquecer el prompt con fecha,
- * idioma, preferencias del usuario u otros datos dinámicos.
+ * Esta separado para poder enriquecer el prompt con datos dinamicos
+ * sin mezclar esa decision con buildPayload().
  */
 export function createSystemPrompt(character) {
   return character.system;
@@ -66,11 +70,12 @@ export function createSystemPrompt(character) {
 
 /*
  * buildPayload(character, messages)
- * Construye el request completo. Lo crítico: system va top-level.
+ * Recibe el historial de M3L6 y lo deja listo para enviarlo a /api/chat.
+ * La adaptacion a Gemini ocurre en backend, dentro de api/utils/gemini.js.
  */
 export function buildPayload(character, messages) {
   return {
-    model: "claude-3-5-sonnet-latest",
+    model: "gemini-2.5-flash",
     system: createSystemPrompt(character),
     messages,
     max_tokens: 150,
@@ -80,7 +85,7 @@ export function buildPayload(character, messages) {
 
 /*
  * isValidPayload(payload)
- * Valida el contrato mínimo y detecta el bug de role: "system" dentro de messages[].
+ * Valida el contrato minimo y detecta el bug de role: "system" dentro de messages[].
  */
 export function isValidPayload(payload) {
   if (typeof payload?.model !== "string") return false;

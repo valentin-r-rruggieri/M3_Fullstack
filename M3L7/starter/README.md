@@ -37,6 +37,7 @@ El starter arranca usando `mockApi.js` para confirmar que el chat base funciona 
 | Archivo | Que se hace | Concepto de la lecture |
 |---------|-------------|-------------------------|
 | `api/chat.js` | Crear primero una respuesta mock serverless y despues conectar Gemini real | Backend seguro en Vercel |
+| `api/utils/*` | Helpers ya listos para parsear request, adaptar mensajes y armar respuestas | Funcion serverless limpia |
 | `src/engine/aiClient.js` | Implementar `fetch("/api/chat")` | Frontend habla con backend propio |
 | `src/views/chat.js` | Cambiar el import de `mockApi.js` a `aiClient.js` | Reemplazar mock local por proxy seguro |
 | `.env` | Crear desde `.env.example` | API key en variable de entorno backend |
@@ -119,7 +120,9 @@ Abrir:
 api/chat.js
 ```
 
-Implementar una serverless function que responda con el mismo formato que ya entiende `normalizer.js`:
+Implementar una serverless function que responda con el mismo formato que ya entiende `normalizer.js`.
+
+La funcion debe leer `payload.messages`. Ese array no es solo el ultimo mensaje: es el historial recortado que viene de M3L6.
 
 ```js
 {
@@ -149,6 +152,14 @@ si responde OK: return data
 ```
 
 Este archivo vive en frontend, por eso no puede importar Gemini ni leer `GEMINI_API_KEY`.
+
+El body que manda a `/api/chat` incluye:
+
+```txt
+system -> prompt del personaje
+messages[] -> historial recortado de la conversacion
+temperature/max_tokens -> configuracion
+```
 
 ### Paso 4 — Cambiar el import del chat
 
@@ -209,6 +220,15 @@ const apiKey = process.env.GEMINI_API_KEY;
 ```
 
 Adaptar `messages[]` al formato de Gemini y devolver nuevamente `content[]`.
+
+La adaptacion no va mezclada en `api/chat.js`; para eso estan:
+
+| Helper | Responsabilidad |
+|--------|-----------------|
+| `api/utils/request.js` | Parsear body, validar `messages[]`, leer configuracion |
+| `api/utils/gemini.js` | Convertir historial M3L6 a `contents[]` de Gemini |
+| `api/utils/response.js` | Devolver `content[]` compatible con el frontend |
+| `api/utils/errors.js` | Manejar 429 y status HTTP controlados |
 
 ---
 
