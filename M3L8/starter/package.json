@@ -1,7 +1,7 @@
 {
-  "name": "dad-joke-generator-tests-starter",
+  "name": "chat-ai-testing-starter",
   "version": "1.0.0",
-  "description": "M3L8 Starter: Dad Joke Generator de M3L7 + tests con Vitest",
+  "description": "M3L8 Starter: tests con Vitest sobre el chat serverless de M3L7",
   "type": "module",
   "scripts": {
     "local": "npx --yes vercel dev",

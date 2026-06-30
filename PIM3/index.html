@@ -1,63 +1,22 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <!--
-    meta viewport: indispensable para responsive design mobile-first (L1).
-    Sin esto, los celulares renderizan la página a escala de escritorio
-    y las media queries no funcionan correctamente.
-  -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chat con Sherlock Holmes</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PIM3 — Chat AI Serverless Gemini</title>
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-
-  <!--
-    ARQUITECTURA SPA (L2 - History API):
-    Toda la aplicación vive en UN SOLO archivo HTML.
-    Las "páginas" (Home, Chat, About) son simplemente distintos
-    contenidos que se renderizan dentro de #app usando JavaScript.
-    La URL cambia con history.pushState() pero nunca hay recarga.
-  -->
-
-  <!-- Navbar: siempre visible en todas las vistas -->
-  <header class="navbar">
-    <div class="navbar__brand">
-      <!-- data-href: atributo personalizado para el router (L2) -->
-      <a href="/home" class="navbar__logo" data-href="/home">
-        🔍 Sherlock Holmes
-      </a>
+  <nav class="navbar">
+    <a href="/" class="navbar__brand">🤖 Chat AI</a>
+    <div class="navbar__links">
+      <a href="/">Inicio</a>
+      <a href="/about">Acerca</a>
     </div>
-    <nav class="navbar__links">
-      <!-- Estos links son interceptados por setupLinkInterception() en app.js -->
-      <!-- No recargan la página — el router los maneja con pushState -->
-      <a href="/home"  class="nav-link" data-href="/home">Inicio</a>
-      <a href="/chat"  class="nav-link" data-href="/chat">Chat</a>
-      <a href="/about" class="nav-link" data-href="/about">Acerca de</a>
-    </nav>
-    <!-- Botón hamburguesa para mobile -->
-    <button class="navbar__hamburger" id="hamburger-btn" aria-label="Abrir menú">
-      ☰
-    </button>
-  </header>
+  </nav>
 
-  <!--
-    #app: el contenedor donde el router inyecta el HTML de cada vista.
-    Es el equivalente al <main id="app"> del ejemplo de L2.
-    Cuando el usuario navega a /home, app.js limpia #app y renderiza renderHome().
-    Cuando navega a /chat, renderiza renderChat(). Y así.
-  -->
-  <main id="app" aria-live="polite">
-    <!-- El contenido se renderiza acá dinámicamente -->
-    <!-- aria-live="polite": accesibilidad — anuncia cambios de contenido -->
-  </main>
+  <main id="app"></main>
 
-  <!--
-    type="module": necesario para usar import/export entre archivos (L2, L7, L8).
-    También permite que Vercel sirva los archivos correctamente.
-    El punto de entrada es app.js que importa chat.js y utils.js.
-  -->
-  <script type="module" src="app.js"></script>
+  <script type="module" src="./src/main.js"></script>
 </body>
 </html>

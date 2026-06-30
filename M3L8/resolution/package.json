@@ -1,7 +1,7 @@
 {
-  "name": "dad-joke-generator-tests-resolution",
+  "name": "chat-ai-testing-resolution",
   "version": "1.0.0",
-  "description": "M3L8 Resolution: Dad Joke Generator de M3L7 + tests con Vitest",
+  "description": "M3L8 Resolution: tests con Vitest sobre el chat serverless de M3L7",
   "type": "module",
   "scripts": {
     "local": "npx --yes vercel dev",

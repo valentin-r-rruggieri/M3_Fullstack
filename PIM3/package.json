@@ -1,10 +1,10 @@
 {
-  "name": "chat-with-sherlock",
+  "name": "pim3-chat-ai-final",
   "version": "1.0.0",
-  "description": "SPA para chatear con Sherlock Holmes usando Gemini AI",
+  "description": "PIM3: proyecto integrador final basado en el chat serverless con Gemini",
   "type": "module",
   "scripts": {
-    "dev": "vercel dev",
+    "local": "npx --yes vercel dev",
     "test": "vitest",
     "test:run": "vitest run"
   },

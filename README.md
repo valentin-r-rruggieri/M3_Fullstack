@@ -58,9 +58,9 @@ flowchart LR
 | M3L4 | `M3L4/starter` y `M3L4/resolution` | REST APIs y datos | Galeria Rick & Morty | `URLSearchParams`, validacion de JSON, transformacion a ViewModel, render de grilla | Inspeccionar JSON, completar pipeline y validar UI. |
 | M3L5 | `M3L5/starter` y `M3L5/resolution` | AI prompting | Chat demo con bugs intencionales | Diagnostico, prompts estructurados, evidencia en DevTools, fix minimo, verificacion | Reproducir bugs, pedir ayuda a IA con buen prompt y documentar el proceso. |
 | M3L6 | `M3L6/starter` y `M3L6/resolution` | AI chat engine | Chat con mock de API de IA | Payloads, historial, normalizacion de respuestas, debounce, lock, retry 429 | Construir la arquitectura desde el starter y comparar con resolution. |
-| M3L7 | `M3L7/starter` y `M3L7/resolution` | Backend serverless | Dad Joke Generator con Gemini | Vercel Functions, variables de entorno, API key server-side, `POST /api/joke` | Crear `.env`, levantar Vercel Dev y validar que la key no se expone. |
-| M3L8 | `M3L8/starter` y `M3L8/resolution` | Testing | Dad Joke Generator + Vitest | Unit tests, funciones puras, `describe/it/expect`, `vi.fn`, mock de `fetch` | En starter los tests fallan a proposito; el objetivo es llevarlos a verde. |
-| PI | `PIM3` | Proyecto integrador | Chat con Sherlock Holmes | Prompt de personaje, Gemini, Vercel, tests, persistencia local, UI final | Proyecto completo para entrega, demo, deploy y validacion con tests. |
+| M3L7 | `M3L7/starter` y `M3L7/resolution` | Backend serverless | Chat AI conectado a Gemini | Vercel Functions, variables de entorno, API key server-side, `POST /api/chat` | Crear `.env`, levantar Vercel Dev y validar que la key no se expone. |
+| M3L8 | `M3L8/starter` y `M3L8/resolution` | Testing | Chat AI + Vitest | Unit tests, funciones puras, `describe/it/expect`, `vi.fn`, mock de `fetch` | En starter hay tests guiados con `it.todo`; el objetivo es completarlos. |
+| PI | `PIM3` | Proyecto integrador | Chat AI Serverless Gemini | Prompt de personaje, Gemini, Vercel, tests, UI final | Proyecto completo para entrega, demo, deploy y validacion con tests. |
 
 ## Starter vs Resolution
 
@@ -171,7 +171,7 @@ npm install
 npm run test:run
 ```
 
-En `M3L8/starter`, los tests de `jokeUtils.test.js` estan preparados para fallar al inicio. Ese rojo inicial es parte del ejercicio.
+En `M3L8/starter`, los tests estan preparados con ejemplos activos e `it.todo` para que los alumnos completen la suite sin tocar la app.
 
 ## Uso recomendado en clase
 
@@ -252,8 +252,8 @@ En `M3L8/starter`, los tests de `jokeUtils.test.js` estan preparados para fallar
 | Tema | Separar frontend de backend serverless |
 | Starter | `M3L7/starter` |
 | Resolution | `M3L7/resolution` |
-| Validacion | Generar chiste, revisar Network y confirmar que la API key no aparece |
-| Resultado | Frontend llama a `/api/joke`; Gemini y la key quedan del lado servidor |
+| Validacion | Enviar mensaje en `/chat/science`, revisar Network y confirmar que la API key no aparece |
+| Resultado | Frontend llama a `/api/chat`; Gemini y la key quedan del lado servidor |
 
 ### M3L8 - Testing con Vitest
 
@@ -271,7 +271,7 @@ En `M3L8/starter`, los tests de `jokeUtils.test.js` estan preparados para fallar
 |-------|---------|
 | Tema | Integracion final del modulo |
 | Carpeta | `PIM3` |
-| App | Chat con Sherlock Holmes usando Gemini |
+| App | Chat AI Serverless Gemini |
 | Validacion | `npm run test:run`, demo local y deploy opcional |
 | Resultado | Proyecto completo con UI, serverless, prompt de personaje, tests y documentacion |
 

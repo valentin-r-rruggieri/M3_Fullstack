@@ -1,14 +1,8 @@
-# Dependencias instaladas por npm.
 node_modules
-
-# Variables de entorno locales: no se suben al repo.
 .env
 .env.local
 .env*.local
-
-# Carpeta local creada por Vercel Dev.
 .vercel
-
-# Material docente local: puede existir en la maquina del instructor,
-# pero no forma parte del starter publico del alumno.
 GUION.md
+
+.vercel
