@@ -1,122 +1,137 @@
-# Dad Joke Generator — M3L7 (Solución)
+# Chat AI Serverless Gemini — M3L7 Resolution
 
-Proyecto resuelto del Hands-On: Frontend + Vercel Serverless Function + Gemini.
-La API key nunca está visible en el navegador.
-
----
-
-## Cómo levantar en local
-
-```bash
-npm install                    # instalar @google/generative-ai
-cp .env.example .env          # crear .env con tu API key (editar el archivo)
-npm run local                  # levantar Vercel Dev en http://localhost:3000
-```
-
-Abrir `http://localhost:3000` → click en "Generá un chiste" → la serverless function llama a Gemini → se muestra el chiste.
-
----
-
-## Cómo desplegar a producción
-
-```bash
-# 1. Subir a GitHub
-git init
-git add .
-git commit -m "Dad Joke Generator"
-# crear repo en github.com y copiar la URL
-git remote add origin <URL-del-repo>
-git push -u origin main
-```
-
-En el navegador:
-1. Ir a https://vercel.com → Dashboard → Add New → Project
-2. Importar el repo de GitHub
-3. Antes de Deploy → abrir **Environment Variables**
-4. Agregar: `GEMINI_API_KEY` con el mismo valor que usás en local
-5. Deploy
-
-⚠️ **Nunca subas el .env a Git.** En producción la API key se configura en el dashboard de Vercel, no en archivos del repo.
-
----
-
-## Lo que deberías verificar después del deploy
-
-| Qué mirar | Cómo | Resultado esperado |
-|-----------|------|--------------------|
-| App funcionando | Abrir la URL de Vercel | El botón genera un chiste |
-| Key no visible | F12 → Sources → Ctrl+F "AIza" | **Sin resultados** |
-| Key no visible | F12 → Network → ver request a /api/joke | No hay headers con API key |
-| Logs del servidor | Vercel Dashboard → Functions → Logs | Solo visible para vos (dueño del proyecto) |
-
----
-
-## Lo que construimos
-
-```
-📁 M3L7-Resolution/
-├── index.html           → HTML estático (interfaz)
-├── styles.css           → Dark mode minimalista
-├── app.js               → Frontend: llama a /api/joke con fetch (POST)
-├── api/
-│   └── joke.js          → Serverless Function: recibe POST, llama a Gemini
-├── package.json         → @google/generative-ai + dev script
-├── .env.example         → Template de la API key
-├── .gitignore           → exclude: node_modules, .env, .vercel, GUION.md
-├── README.md            → Este archivo
-└── GUION.md             → Guía docente (en .gitignore)
-```
-
----
-
-## El flujo de seguridad (confirmado)
-
-```
-❌ ANTI-PATRÓN (lo que NO hicimos):
-   app.js → Gemini directo → API key visible en DevTools
-
-✅ FLUJO SEGURO (lo que implementamos):
-   app.js → POST /api/joke → api/joke.js → process.env.GEMINI_API_KEY → Gemini
-            ↑                                     ↑
-       el frontend no sabe       la key existe SOLO en el servidor
-       que Gemini existe         (Vercel), nunca en el navegador
-```
-
-**Punto clave:** `app.js` llama a `/api/joke` y nada más. Ni siquiera importa `@google/generative-ai`. La librería de Gemini y la API key existen exclusivamente en la serverless function, que corre en los servidores de Vercel.
-
----
-
-## Troubleshooting común
-
-| Problema | Solución |
-|----------|----------|
-| `npm run dev` da error recursivo | Usar `npm run local` o `npx --yes vercel dev` |
-| `vercel dev` no arranca | Usar `npx --yes vercel dev` o instalar `npm install -g vercel` |
-| Error "GEMINI_API_KEY no configurada" | Crear `.env` con la key real + reiniciar Vercel Dev |
-| Gemini devuelve error 429 | Rate limit del free tier, esperar 1 minuto |
-| Funciona en local pero no en producción | Verificar Environment Variables en Vercel Dashboard → redeploy |
-| Cannot find module @google/generative-ai | `npm install` desde la raíz del proyecto |
-
----
-
-## Nota sobre `npm run dev`
-
-No usar `npm run dev` en este proyecto.
-
-Si `package.json` define `"dev": "vercel dev"`, Vercel detecta una invocación recursiva y corta el arranque con este error:
+Resolucion del ejercicio practico M3L7. Esta version toma el chat engine de M3L6 y reemplaza el mock local por una integracion segura con Gemini:
 
 ```txt
-vercel dev must not recursively invoke itself
+Frontend -> /api/chat -> Vercel Serverless Function -> Gemini
 ```
 
-Por eso el script se llama `local`:
+La API key queda protegida en backend:
+
+```js
+process.env.GEMINI_API_KEY
+```
+
+Nunca aparece en el navegador.
+
+---
+
+## Que demuestra
+
+- Separacion frontend/backend para proteger credenciales.
+- Uso de Vercel Serverless Functions.
+- Endpoint `POST /api/chat`.
+- Uso del SDK `@google/generative-ai` solo en backend.
+- Adaptacion del payload interno del chat al formato de Gemini.
+- Respuesta compatible con el normalizador de M3L6 (`content[]`).
+- Uso de `.env` en local y Environment Variables en Vercel.
+
+---
+
+## Archivos clave
+
+| Archivo | Responsabilidad |
+|---------|-----------------|
+| `src/views/chat.js` | Usa `callAI()` desde `aiClient.js` |
+| `src/engine/aiClient.js` | Hace `POST /api/chat` desde el frontend |
+| `api/chat.js` | Lee `GEMINI_API_KEY`, llama a Gemini y adapta la respuesta |
+| `.env.example` | Template de variable de entorno |
+| `package.json` | Dependencia `@google/generative-ai` y script `npm run local` |
+
+---
+
+## Como correr en local
 
 ```bash
+npm install
+Copy-Item .env.example .env
 npm run local
 ```
 
-También podés correr directamente:
+Editar `.env`:
 
-```bash
-npx --yes vercel dev
+```txt
+GEMINI_API_KEY=tu-api-key-real
+```
+
+Abrir:
+
+```txt
+http://localhost:3000
+```
+
+No usar `live-server`, porque `live-server` no ejecuta la carpeta `api/`.
+
+---
+
+## Flujo completo
+
+```txt
+1. Usuario escribe en /chat/science
+2. views/chat.js arma historial y payload
+3. aiClient.js hace fetch("/api/chat")
+4. Vercel ejecuta api/chat.js
+5. api/chat.js lee process.env.GEMINI_API_KEY
+6. api/chat.js llama a Gemini
+7. api/chat.js devuelve content[]
+8. normalizer.js convierte content[] a texto
+9. render.js pinta la burbuja
+```
+
+---
+
+## Seguridad
+
+Verificar en DevTools:
+
+```txt
+Sources -> buscar GEMINI_API_KEY
+Sources -> buscar AIza
+Network -> request /api/chat
+```
+
+Resultado esperado:
+
+```txt
+La key no aparece.
+El frontend solo conoce /api/chat.
+```
+
+---
+
+## Deploy en Vercel
+
+1. Subir el proyecto a GitHub.
+2. Importarlo en Vercel.
+3. Ir a Project Settings -> Environment Variables.
+4. Agregar:
+
+```txt
+GEMINI_API_KEY=tu-api-key-real
+```
+
+5. Hacer deploy o redeploy.
+
+Si la app carga pero el chat falla con `GEMINI_API_KEY no configurada`, falta configurar la variable en Vercel o falta redeployar.
+
+---
+
+## Troubleshooting
+
+| Problema | Causa probable | Solucion |
+|----------|----------------|----------|
+| `/api/chat` 404 local | Se uso Live Server | Usar `npm run local` |
+| `Cannot find module @google/generative-ai` | Falta instalar | `npm install` |
+| `GEMINI_API_KEY no configurada` | Falta `.env` o env en Vercel | Crear/configurar variable |
+| Respuesta vacia | Gemini devolvio texto vacio | Revisar logs de `api/chat.js` |
+| Error 429 | Cuota/rate limit | Esperar y reintentar |
+
+---
+
+## Patron que queda
+
+Este patron sirve para cualquier frontend que necesite hablar con una API externa protegida:
+
+```txt
+Cliente publico -> endpoint propio -> proveedor externo con credenciales privadas
 ```

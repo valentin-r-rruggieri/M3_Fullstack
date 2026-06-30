@@ -1,172 +1,77 @@
-# Dad Joke Generator — STARTER M3L7
+# Chat AI Serverless Gemini — STARTER M3L7
 
-## De qué se trata
+Este starter continua directamente el ejercicio de M3L6.
 
-Una app que genera chistes malos en español usando inteligencia artificial, pero con una condición central: **la API key de Gemini nunca debe estar visible en el navegador**.
+El chat ya funciona con el mock local: UI, personajes, historial, payload, normalizacion de `content[]`, debounce, lock de UI y manejo de estados ya estan resueltos.
 
-El flujo seguro que vamos a construir es:
+En M3L7 el foco nuevo es uno solo:
 
 ```txt
-Navegador → /api/joke → Serverless Function → process.env → Gemini
-    ↑              ↑
-código público    código privado del servidor
-visible           la key nunca llega al browser
+Frontend -> /api/chat -> Serverless Function -> process.env.GEMINI_API_KEY -> Gemini
 ```
 
-Este patrón es el que se usa cuando una app frontend necesita consumir una API externa con credenciales privadas.
+La idea central: **la API key nunca vive en el frontend**.
 
-## Qué ya está listo
+---
 
-Para no sumar complejidad innecesaria, el Starter ya trae resuelta toda la parte de HTML, CSS e interacción con el DOM.
+## Que ya esta listo
 
-| Archivo | Estado | Rol |
-|---------|--------|-----|
-| `index.html` | Completo | Interfaz: botón, caja de chiste y caja de error |
-| `styles.css` | Completo | Dark mode minimalista, mobile-first |
-| `app.js` | Completo para DOM | Eventos, loading, error y chiste hardcodeado |
-| `package.json` | Completo | Dependencia `@google/generative-ai` y script local |
-| `.gitignore` | Completo | Excluye `node_modules`, `.env`, `.vercel` |
-| `.env.example` | Completo | Template para crear `.env` |
+| Archivo/carpeta | Estado | Rol |
+|-----------------|--------|-----|
+| `index.html` | Completo | Carga la SPA |
+| `styles.css` | Completo | UI responsive del chat |
+| `src/router.js` | Completo | Rutas `/`, `/about`, `/chat/:character` |
+| `src/views/*` | Completo | Home, chat, about y 404 |
+| `src/engine/history.js` | Completo | Historial de conversacion |
+| `src/engine/payload.js` | Completo | Personajes y payload interno |
+| `src/engine/normalizer.js` | Completo | Convierte `content[]` a texto seguro |
+| `src/ui/render.js` | Completo | Render de burbujas, loading, errores y reset |
+| `src/engine/mockApi.js` | Completo | Mock local heredado de M3L6 |
 
-## Qué vas a construir en clase
+El starter arranca usando `mockApi.js` para confirmar que el chat base funciona antes de conectar Gemini.
 
-El foco de M3L7 no es manipular el DOM. El foco es construir el puente seguro entre frontend y una API externa.
+---
 
-| Archivo | Qué tiene ahora | Qué modifica el alumno |
-|---------|-----------------|-------------------------|
-| `app.js` | DOM listo + `getJoke()` hardcodeado | Reemplazar solo `getJoke()` por `fetch("/api/joke")` |
-| `api/joke.js` | Skeleton con TODOs | Crear la Serverless Function mock y luego Gemini real |
-| `.env` | No existe en Starter | Crear desde `.env.example` y pegar `GEMINI_API_KEY` |
+## Que modifica el alumno
 
-## Cómo levantar el Starter
+| Archivo | Que se hace | Concepto de la lecture |
+|---------|-------------|-------------------------|
+| `api/chat.js` | Crear primero una respuesta mock serverless y despues conectar Gemini real | Backend seguro en Vercel |
+| `src/engine/aiClient.js` | Implementar `fetch("/api/chat")` | Frontend habla con backend propio |
+| `src/views/chat.js` | Cambiar el import de `mockApi.js` a `aiClient.js` | Reemplazar mock local por proxy seguro |
+| `.env` | Crear desde `.env.example` | API key en variable de entorno backend |
 
-Desde esta carpeta:
+No se toca DOM, CSS, historial, payload ni normalizer. Eso ya fue M3L6.
+
+---
+
+## Por que no usamos live-server
+
+En M3L2 a M3L6 muchas demos podian levantarse con un servidor estatico. En M3L7 aparece una carpeta nueva:
+
+```txt
+api/
+```
+
+Vercel convierte cada archivo de esa carpeta en un endpoint serverless:
+
+```txt
+api/chat.js -> /api/chat
+```
+
+`live-server` solo sirve archivos estaticos. No ejecuta funciones backend. Por eso en esta clase usamos Vercel Dev.
+
+---
+
+## Como correr
+
+Instalar dependencias:
 
 ```bash
 npm install
-npm run local
 ```
 
-O directo:
-
-```bash
-npx --yes vercel dev
-```
-
-Abrir:
-
-```txt
-http://localhost:3000
-```
-
-No uses `live-server` para este ejercicio. M3L7 necesita ejecutar la carpeta `api/`, y eso lo hace Vercel Dev.
-
-No uses `npm run dev`. Si un proyecto define `"dev": "vercel dev"`, Vercel puede detectar una invocación recursiva. Por eso el script se llama `local`.
-
-## Estado inicial esperado
-
-Al abrir el Starter y tocar el botón, debería aparecer un chiste fijo:
-
-```txt
-¿Por qué el libro de matemáticas estaba triste? Porque tenía demasiados problemas.
-```
-
-Eso confirma que:
-
-- el HTML carga;
-- el CSS carga;
-- el botón funciona;
-- el evento click funciona;
-- los estados de loading/error/success ya están conectados.
-
-Recién después de confirmar eso, se trabaja el backend.
-
-## Paso a paso en clase
-
-### Paso 1 — Verificar frontend hardcodeado
-
-Abrir la app y hacer click en:
-
-```txt
-Generá un chiste
-```
-
-Qué decir:
-
-> “El DOM ya está resuelto. No vamos a gastar tiempo de esta clase escribiendo `getElementById` ni event listeners. Lo que nos importa hoy es que el frontend no llame a Gemini directamente.”
-
-Archivo:
-
-```txt
-app.js
-```
-
-La función inicial es:
-
-```js
-async function getJoke() {
-  await new Promise((resolve) => setTimeout(resolve, 400))
-  return "¿Por qué el libro de matemáticas estaba triste? Porque tenía demasiados problemas."
-}
-```
-
-### Paso 2 — Crear `/api/joke` mock
-
-Archivo:
-
-```txt
-api/joke.js
-```
-
-Primera versión:
-
-```js
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" })
-  }
-
-  await new Promise((resolve) => setTimeout(resolve, 600))
-
-  return res.status(200).json({
-    joke: "[MOCK] ¿Por qué el programador usa lentes? Porque no puede ver C#.",
-  })
-}
-```
-
-Objetivo:
-
-- entender la forma de una Serverless Function;
-- probar `/api/joke` sin gastar tokens;
-- verificar que Vercel Dev ejecuta backend local.
-
-### Paso 3 — Reemplazar `getJoke()` por `fetch("/api/joke")`
-
-En `app.js`, reemplazar únicamente la función `getJoke()`:
-
-```js
-async function getJoke() {
-  const response = await fetch("/api/joke", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ topic: "anything" }),
-  })
-
-  if (!response.ok) {
-    const err = await response.json()
-    throw new Error(err.error || "Error del servidor")
-  }
-
-  const data = await response.json()
-  return data.joke
-}
-```
-
-No tocar el event listener ni los helpers de UI. Ya están listos.
-
-### Paso 4 — Probar el mock completo
-
-Levantar:
+Levantar con Vercel Dev:
 
 ```bash
 npm run local
@@ -178,133 +83,174 @@ Abrir:
 http://localhost:3000
 ```
 
-Click en el botón.
-
-Resultado esperado:
+Probar:
 
 ```txt
-[MOCK] ¿Por qué el programador usa lentes? Porque no puede ver C#.
+/chat/science
 ```
+
+Enviar un mensaje. La respuesta inicial viene del mock local de M3L6.
+
+---
+
+## Paso a paso del ejercicio
+
+### Paso 1 — Verificar el punto de partida
+
+Abrir:
+
+```txt
+src/views/chat.js
+```
+
+Buscar:
+
+```js
+import { callAI } from "../engine/mockApi.js";
+```
+
+Esa linea marca la frontera actual: el chat llama a un mock local.
+
+### Paso 2 — Crear `/api/chat` mock
+
+Abrir:
+
+```txt
+api/chat.js
+```
+
+Implementar una serverless function que responda con el mismo formato que ya entiende `normalizer.js`:
+
+```js
+{
+  content: [
+    { type: "text", text: "Respuesta mock desde /api/chat" }
+  ]
+}
+```
+
+Todavia no conectamos Gemini. Primero probamos la infraestructura.
+
+### Paso 3 — Implementar `aiClient.js`
+
+Abrir:
+
+```txt
+src/engine/aiClient.js
+```
+
+Implementar:
+
+```txt
+POST /api/chat
+body: payload del chat
+si falla: throw Error
+si responde OK: return data
+```
+
+Este archivo vive en frontend, por eso no puede importar Gemini ni leer `GEMINI_API_KEY`.
+
+### Paso 4 — Cambiar el import del chat
+
+Abrir:
+
+```txt
+src/views/chat.js
+```
+
+Cambiar:
+
+```js
+import { callAI } from "../engine/mockApi.js";
+```
+
+por:
+
+```js
+import { callAI } from "../engine/aiClient.js";
+```
+
+Desde ese momento el chat deja de usar el mock local y empieza a usar `/api/chat`.
 
 ### Paso 5 — Crear `.env`
 
 Copiar:
 
-```bash
-copy .env.example .env
+```powershell
+Copy-Item .env.example .env
 ```
 
-O manualmente crear `.env`:
+Completar:
 
 ```txt
 GEMINI_API_KEY=tu-api-key-real
 ```
 
-La key se obtiene en:
+Reiniciar `npm run local` despues de crear o modificar `.env`.
+
+### Paso 6 — Conectar Gemini en `api/chat.js`
+
+Abrir:
 
 ```txt
-https://aistudio.google.com
+api/chat.js
 ```
 
-Importante:
-
-> “`.env` nunca se sube a Git. Por eso está en `.gitignore`.”
-
-### Paso 6 — Reemplazar mock por Gemini real
-
-En `api/joke.js`, reemplazar el mock por:
+Agregar el SDK:
 
 ```js
-import { GoogleGenerativeAI } from "@google/generative-ai"
-
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" })
-  }
-
-  try {
-    const apiKey = process.env.GEMINI_API_KEY
-
-    if (!apiKey) {
-      return res.status(500).json({ error: "GEMINI_API_KEY no configurada" })
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
-
-    const prompt =
-      "Generá un dad joke corto en español. " +
-      "Debe tener juego de palabras o remate inesperado. " +
-      "Solo el chiste, sin explicaciones."
-
-    const result = await model.generateContent(prompt)
-    const joke = result.response.text().trim()
-
-    return res.status(200).json({ joke })
-  } catch (error) {
-    console.error("[/api/joke] Error:", error.message)
-    return res.status(500).json({ error: "Error al generar el chiste" })
-  }
-}
+import { GoogleGenerativeAI } from "@google/generative-ai";
 ```
 
-### Paso 7 — Verificar seguridad
+Leer la key solo en backend:
 
-Abrir DevTools:
-
-```txt
-F12 → Sources
+```js
+const apiKey = process.env.GEMINI_API_KEY;
 ```
 
-Buscar:
+Adaptar `messages[]` al formato de Gemini y devolver nuevamente `content[]`.
+
+---
+
+## Seguridad que hay que verificar
+
+Abrir DevTools y buscar:
 
 ```txt
 GEMINI_API_KEY
 AIza
+@google/generative-ai
 ```
 
 Resultado esperado:
 
 ```txt
-Sin resultados
+La key no aparece en Sources ni en Network.
 ```
 
-Qué decir:
+El frontend solo debe ver:
 
-> “El navegador solo conoce `/api/joke`. No conoce Gemini, no importa `@google/generative-ai` y no ve la API key.”
-
-## Anti-patrón que evitamos
-
-No hacer esto en `app.js`:
-
-```js
-const API_KEY = "AIzaSy..."
-
-fetch("https://generativelanguage.googleapis.com/...", {
-  headers: {
-    Authorization: `Bearer ${API_KEY}`,
-  },
-})
+```txt
+POST /api/chat
 ```
 
-Eso deja la key visible para cualquier usuario.
-
-## Resultado final
-
-Al terminar, el Starter debería comportarse como `M3L7-Resolution`:
-
-- botón genera chistes desde Gemini;
-- frontend llama solo a `/api/joke`;
-- la serverless function lee `process.env.GEMINI_API_KEY`;
-- la key no aparece en DevTools;
-- el error se muestra en la UI si falla el backend.
+---
 
 ## Troubleshooting
 
-| Problema | Causa probable | Solución |
+| Problema | Causa probable | Solucion |
 |----------|----------------|----------|
-| `npm run dev` falla con recursión | Script mal nombrado | Usar `npm run local` |
-| `/api/joke` da 404 | Se levantó con `live-server` | Usar `npx --yes vercel dev` |
-| `GEMINI_API_KEY no configurada` | Falta `.env` | Crear `.env` y reiniciar Vercel Dev |
-| `Cannot find module @google/generative-ai` | Falta instalar dependencias | Ejecutar `npm install` |
-| La key aparece en DevTools | Se puso en frontend | Moverla a `.env` y leerla desde `process.env` |
+| `/api/chat` da 404 | Se levanto con Live Server | Usar `npm run local` |
+| `GEMINI_API_KEY no configurada` | Falta `.env` o falta reiniciar | Crear `.env` y reiniciar Vercel Dev |
+| La app sigue usando mock local | No cambiaste el import en `views/chat.js` | Importar desde `aiClient.js` |
+| Aparece la key en DevTools | La pusiste en frontend | Moverla a `.env` y leerla en `api/chat.js` |
+| Error 429 | Rate limit/cuota de Gemini | Esperar o probar menos mensajes |
+
+---
+
+## Idea clave
+
+```txt
+M3L6 construyo el motor del chat.
+M3L7 lo conecta de forma segura con una Serverless Function.
+```

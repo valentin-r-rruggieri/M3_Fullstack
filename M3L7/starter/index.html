@@ -1,28 +1,22 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dad Joke Generator</title>
-  <link rel="stylesheet" href="./styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat AI Secure Proxy — M3L7 Starter</title>
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <div class="container">
-    <h1>😂 Dad Joke Generator</h1>
-    <p class="subtitle">Chistes malos generados por IA</p>
-
-    <button id="joke-btn" class="btn">
-      Generá un chiste
-    </button>
-
-    <div id="joke-output" class="joke-box hidden">
-      <p id="joke-text"></p>
+  <nav class="navbar">
+    <a href="/" class="navbar__brand">🤖 Chat AI</a>
+    <div class="navbar__links">
+      <a href="/">Inicio</a>
+      <a href="/about">Acerca</a>
     </div>
+  </nav>
 
-    <div id="error-output" class="error-box hidden">
-      <p id="error-text"></p>
-    </div>
-  </div>
-  <script src="app.js"></script>
+  <main id="app"></main>
+
+  <script type="module" src="./src/main.js"></script>
 </body>
 </html>

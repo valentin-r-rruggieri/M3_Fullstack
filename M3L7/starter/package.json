@@ -1,7 +1,8 @@
 {
-  "name": "dad-jokes-generator",
+  "name": "chat-ai-secure-proxy-starter",
   "version": "1.0.0",
-  "description": "Dad Joke Generator con Vercel Serverless Functions",
+  "description": "M3L7 Starter: Chat AI de M3L6 migrado a Vercel Serverless Functions",
+  "type": "module",
   "scripts": {
     "local": "npx --yes vercel dev"
   },
