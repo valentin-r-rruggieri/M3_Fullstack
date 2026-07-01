@@ -4,40 +4,49 @@ import { toGeminiContents } from "../api/utils/gemini.js";
 // ============================================================
 // STARTER M3L8 — Tests de api/utils/gemini.js
 // ============================================================
-// Objetivo:
-//   Testear un adaptador de datos.
+// Este archivo prueba una transformacion de datos.
 //
-// Nuestra app guarda historial como:
+// Nuestra app guarda mensajes asi:
 //   { role: "user" | "assistant", content: string }
 //
-// Gemini espera:
+// Gemini espera mensajes asi:
 //   { role: "user" | "model", parts: [{ text }] }
 //
-// Este archivo prueba que NO perdemos historial al adaptar el payload.
+// No hace falta llamar a Gemini real para probar esto.
+// Solo probamos que la funcion transforma bien los datos.
 // ============================================================
 
 describe("api/utils/gemini.js", () => {
   it.todo("convierte role assistant a role model");
 
-  // TODO 1:
-  // const result = toGeminiContents([{ role: "assistant", content: "respuesta" }])
-  // Esperar:
-  // [{ role: "model", parts: [{ text: "respuesta" }] }]
+  // Antes de escribir el test:
+  // - importar expect desde Vitest.
+  //
+  // Pasos:
+  // - ejecutar toGeminiContents([{ role: "assistant", content: "respuesta" }])
+  // - verificar que devuelve:
+  //   [{ role: "model", parts: [{ text: "respuesta" }] }]
+  //
+  // Usar:
+  // - toEqual(...) para comparar arrays u objetos.
 
-  it.todo("preserva todo el historial, no solo el ultimo mensaje");
+  it.todo("mantiene todos los mensajes del historial");
 
-  // TODO 2:
-  // Crear 3 mensajes: user, assistant, user
-  // Llamar toGeminiContents(messages)
-  // Esperar que result tenga length 3
+  // Las APIs de AI no recuerdan por si solas.
+  // Si queremos contexto, mandamos el historial en cada request.
+  //
+  // Pasos:
+  // - crear 3 mensajes: user, assistant, user
+  // - ejecutar toGeminiContents(messages)
+  // - verificar que el resultado tiene length 3
+  //
+  // Usar:
+  // - toHaveLength(3)
 
-  it.todo("convierte role user a role user");
+  it.todo("convierte role user a role user y usa parts");
 
-  // TODO 3:
-  // const result = toGeminiContents([{ role: "user", content: "hola" }])
-  // Esperar que result[0].role sea "user"
+  // Pasos:
+  // - ejecutar toGeminiContents([{ role: "user", content: "hola" }])
+  // - verificar que result[0].role es "user"
+  // - verificar que result[0].parts es [{ text: "hola" }]
 });
-
-// Nota para el alumno:
-// Cuando completes los TODOs vas a necesitar importar expect desde Vitest:
-//   import { describe, it, expect } from "vitest";

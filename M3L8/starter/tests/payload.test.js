@@ -4,44 +4,52 @@ import { buildPayload, getCharacter, isValidPayload } from "../src/engine/payloa
 // ============================================================
 // STARTER M3L8 — Tests de payload.js
 // ============================================================
-// Objetivo:
-//   Verificar que el payload conserva el contrato del chat.
+// Un test debe verificar el resultado que nos importa.
 //
-// Lo importante para esta clase:
-//   - system va separado del historial
-//   - messages[] contiene el historial recortado
-//   - no debe aparecer { role: "system" } dentro de messages[]
-//   - el modelo usado por este ejercicio es gemini-2.5-flash
+// En este archivo queremos cuidar el contrato del payload:
+// - model;
+// - system;
+// - messages[];
+// - max_tokens;
+// - temperature.
+//
+// messages[] es importante porque ahi viaja el historial del chat.
+// Si eso se rompe, Gemini recibe mal la conversacion.
 // ============================================================
 
 describe("payload.js", () => {
-  it.todo("buildPayload construye un payload valido con system top-level e historial en messages[]");
+  it.todo("buildPayload arma un payload valido con system separado y messages[]");
 
-  // TODO 1:
-  // const character = getCharacter("science")
-  // const messages = [{ role: "user", content: "hola" }]
-  // const payload = buildPayload(character, messages)
+  // Antes de escribir el test:
+  // - importar expect desde Vitest.
   //
-  // Esperar:
-  // - payload.model === "gemini-2.5-flash"
+  // Pasos:
+  // - const character = getCharacter("science")
+  // - const messages = [{ role: "user", content: "hola" }]
+  // - const payload = buildPayload(character, messages)
+  //
+  // Verificar:
+  // - payload.model es "gemini-2.5-flash"
   // - payload.system contiene "Dr. Science"
-  // - payload.messages es el MISMO array messages
-  // - isValidPayload(payload) === true
+  // - payload.messages es el mismo array messages
+  // - isValidPayload(payload) devuelve true
+  //
+  // Usar:
+  // - toBe(...) para strings, booleanos o misma referencia.
+  // - toContain(...) para verificar parte de un string.
 
   it.todo("isValidPayload rechaza role system dentro de messages[]");
 
-  // TODO 2:
-  // Crear un payload con:
-  // messages: [{ role: "system", content: "esto esta mal" }]
-  // Esperar isValidPayload(payload) === false
+  // system va separado del historial.
+  // Dentro de messages[] solo aceptamos user o assistant.
+  //
+  // Pasos:
+  // - crear un payload con messages: [{ role: "system", content: "mal" }]
+  // - verificar que isValidPayload(payload) devuelve false
 
-  it.todo("getCharacter devuelve science como fallback si la key no existe");
+  it.todo("getCharacter devuelve science si la key no existe");
 
-  // TODO 3:
-  // Llamar getCharacter("no-existe")
-  // Esperar que devuelva el personaje por defecto Dr. Science
+  // Pasos:
+  // - ejecutar getCharacter("no-existe")
+  // - verificar que character.name es "Dr. Science"
 });
-
-// Nota para el alumno:
-// Cuando completes los TODOs vas a necesitar importar expect desde Vitest:
-//   import { describe, it, expect } from "vitest";
